@@ -1,6 +1,19 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <h1>Welcome to Your Vue.js App</h1>
+    <canvas
+      ref="canvas"
+      width="500"
+      height="300"
+    />
   </div>
 </template>
+
+<script>
+import {orbit} from './lib/orbit'
+
+export default {
+  mounted() {
+    orbit(this.$refs.canvas)
+  }
+}
+</script>
