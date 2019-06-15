@@ -1,12 +1,14 @@
 import * as util from "./util";
 import Vector from "./vector";
+import GBody from "./body";
+import Hero from "./hero";
 
 export const COEF_FRICTION = 0.005;
 export const MIN_DISTANCE = 3;
 
 export class OrbitalError extends Error {}
 
-function pull(hero, body) {
+function pull(hero: Hero, body: GBody) {
   const theta = util.getAngleBetweenPoints(body, hero);
   const distance = util.getDistanceBetweenPoints(body, hero);
 
@@ -19,12 +21,12 @@ function pull(hero, body) {
 }
 
 export default class Collider {
-  constructor(hero, bodies) {
+  constructor(public hero: Hero, public bodies: Array<GBody>) {
     this.hero = hero;
     this.bodies = bodies;
   }
 
-  static next(collider) {
+  static next(collider: Collider) {
     let hero = collider.bodies.reduce((hero, body) => {
       // calculate gravitational pull and apply it to hero
       const vector = pull(hero, body);
@@ -46,10 +48,10 @@ export default class Collider {
     return new Collider(hero, collider.bodies);
   }
 
-  [Symbol.iterator]() {
+  [Symbol.asyncIterator]() {
     return {
       _steps: 0,
-      _collider: this,
+      _collider: new Collider(this.hero, this.bodies),
       next() {
         try {
           this._steps++;
@@ -65,9 +67,9 @@ export default class Collider {
           });
         } catch (e) {
           if (e instanceof OrbitalError) {
-            return { done: true };
+            return Promise.resolve({ value: null, done: true });
           } else {
-            throw e;
+            return Promise.reject(e);
           }
         }
       }
