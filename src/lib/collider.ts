@@ -1,51 +1,63 @@
 import GBody from "./body";
 
-export const COEF_FRICTION = 0.005;
-export const MIN_DISTANCE = 3;
-
 export class OrbitalError extends Error {}
 
+interface ColliderConfig {
+  COEF_FRICTION: number;
+}
+
 export default class Collider {
-  constructor(public hero: GBody, public bodies: Array<GBody>) {
-    this.hero = hero;
+  constructor(public bodies: Array<GBody>, public config: ColliderConfig) {
     this.bodies = bodies;
+    this.config = config;
   }
 
   static next(collider: Collider) {
-    let hero = collider.bodies.reduce((hero, body) => {
-      // calculate gravitational pull and apply it to hero
-      return hero.pull(body);
-    }, collider.hero);
+    let bodies = collider.bodies.map((hero: GBody, i: number) => {
+      hero = collider.bodies.reduce((hero, body, j: number) => {
+        // calculate gravitational pull and apply it to hero
+        if (i == j || hero.fixed) {
+          return hero;
+        } else {
+          return hero.pull(body);
+        }
+      }, hero);
 
-    let mag = hero.vec.getMagnitude() - COEF_FRICTION;
+      if (hero.fixed) {
+        return hero;
+      }
 
-    // friction can't reverse motion, only slow it down
-    if (mag < COEF_FRICTION) {
-      mag = 0;
-      throw new OrbitalError("Dude, you're not moving.");
-    }
+      let mag = hero.vec.getMagnitude() - collider.config.COEF_FRICTION;
 
-    hero.vec.setMagnitude(mag);
+      // friction can't reverse motion, only slow it down
+      if (mag < collider.config.COEF_FRICTION) {
+        mag = 0;
 
-    hero = hero.next();
+        throw new OrbitalError("Dude, you're not moving.");
+      }
+      hero.vec.setMagnitude(mag);
+      return hero.next();
+    });
 
-    return new Collider(hero, collider.bodies);
+    return new Collider(bodies, collider.config);
+  }
+
+  clone() {
+    return new Collider(this.bodies, this.config);
   }
 
   [Symbol.asyncIterator]() {
     return {
-      _steps: 0,
-      _collider: new Collider(this.hero, this.bodies),
+      _collider: this.clone(),
       next() {
         try {
-          this._steps++;
           this._collider = Collider.next(this._collider);
 
           return new Promise(resolve => {
             requestAnimationFrame(() => {
               resolve({
                 value: this._collider,
-                done: this._steps >= 1000
+                done: false
               });
             });
           });

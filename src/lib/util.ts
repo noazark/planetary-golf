@@ -14,13 +14,12 @@ export function fixCanvas(canvas: HTMLCanvasElement) {
   }
 }
 
-export function drawBody(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  r: number = 2,
-  color: string = "black"
-) {
+export function drawBody(ctx: CanvasRenderingContext2D, body: GBody) {
+  const x = body.pos.x;
+  const y = body.pos.y;
+  const color = "gray";
+  const r = 4;
+
   // Draw the face
   ctx.beginPath();
   ctx.arc(x, y, r, 0, 2 * Math.PI);
@@ -30,34 +29,23 @@ export function drawBody(
 }
 
 export async function drawHero(ctx: CanvasRenderingContext2D, moves: Collider) {
-  let m_1;
+  let m_1: Collider;
 
   for await (let m of moves as AsyncIterable<Collider>) {
-    ctx.beginPath();
-    if (m_1) {
-      ctx.moveTo(m_1.hero.pos.x, m_1.hero.pos.y);
-    }
-    ctx.lineTo(m.hero.pos.x, m.hero.pos.y);
+    m.bodies.forEach((body, i) => {
+      ctx.beginPath();
+      if (m_1) {
+        ctx.moveTo(m_1.bodies[i].pos.x, m_1.bodies[i].pos.y);
+      }
+      ctx.lineTo(body.pos.x, body.pos.y);
 
-    const magnitude = m.hero.vec.getMagnitude();
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = `rgb(${(magnitude / 10) * 255}, 0, 0)`;
+      const magnitude = body.vec.getMagnitude();
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = `rgb(${(magnitude / 10) * 255}, 0, 0)`;
 
-    ctx.stroke();
-    ctx.closePath();
-
+      ctx.stroke();
+      ctx.closePath();
+    });
     m_1 = m;
   }
-}
-
-export function getAngleBetweenPoints(a: GBody, b: GBody) {
-  const delta_x = a.pos.x - b.pos.x;
-  const delta_y = a.pos.y - b.pos.y;
-  return Math.atan2(delta_y, delta_x);
-}
-
-export function getDistanceBetweenPoints(a: GBody, b: GBody) {
-  const delta_x = Math.pow(b.pos.x - a.pos.x, 2);
-  const delta_y = Math.pow(b.pos.y - a.pos.y, 2);
-  return Math.sqrt(delta_x + delta_y);
 }
