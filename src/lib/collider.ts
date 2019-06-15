@@ -46,26 +46,22 @@ export default class Collider {
     return new Collider(this.bodies, this.config);
   }
 
-  [Symbol.asyncIterator]() {
+  [Symbol.iterator]() {
     return {
       _collider: this.clone(),
       next() {
         try {
           this._collider = Collider.next(this._collider);
 
-          return new Promise(resolve => {
-            requestAnimationFrame(() => {
-              resolve({
-                value: this._collider,
-                done: false
-              });
-            });
-          });
+          return {
+            value: this._collider,
+            done: false
+          };
         } catch (e) {
           if (e instanceof OrbitalError) {
-            return Promise.resolve({ value: null, done: true });
+            return { value: null, done: true };
           } else {
-            return Promise.reject(e);
+            throw e;
           }
         }
       }

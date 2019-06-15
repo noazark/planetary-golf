@@ -28,10 +28,16 @@ export function drawBody(ctx: CanvasRenderingContext2D, body: GBody) {
   ctx.fill();
 }
 
-export async function drawHero(ctx: CanvasRenderingContext2D, moves: Collider) {
+export async function drawHero(
+  ctx: CanvasRenderingContext2D,
+  moves: Collider,
+  maxIterations: number
+) {
   let m_1: Collider;
+  let iterations = 0;
 
-  for await (let m of moves as AsyncIterable<Collider>) {
+  for (let m of moves as Iterable<Collider>) {
+    iterations++;
     m.bodies.forEach((body, i) => {
       ctx.beginPath();
       if (m_1) {
@@ -47,5 +53,7 @@ export async function drawHero(ctx: CanvasRenderingContext2D, moves: Collider) {
       ctx.closePath();
     });
     m_1 = m;
+
+    if (iterations === maxIterations) break;
   }
 }

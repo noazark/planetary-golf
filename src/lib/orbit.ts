@@ -8,9 +8,9 @@ export function orbit(canvas: HTMLCanvasElement) {
   let moves = levels.harmony();
 
   if (canvas && ctx) {
-    // bodies.forEach(body => {
-    //   util.drawBody(ctx, body);
-    // });
-    util.drawHero(ctx, moves);
+    moves.bodies.forEach(body => {
+      util.drawBody(ctx, body);
+    });
+    util.drawHero(ctx, moves, 2000);
   }
 }
