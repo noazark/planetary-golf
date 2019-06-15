@@ -1,5 +1,4 @@
 import Collider from "./collider";
-import Hero from "./hero";
 import GBody from "./body";
 
 export function fixCanvas(canvas: HTMLCanvasElement) {
@@ -51,13 +50,13 @@ export async function drawHero(ctx: CanvasRenderingContext2D, moves: Collider) {
   }
 }
 
-export function getAngleBetweenPoints(a: Hero | GBody, b: Hero | GBody) {
+export function getAngleBetweenPoints(a: GBody, b: GBody) {
   const delta_x = a.pos.x - b.pos.x;
   const delta_y = a.pos.y - b.pos.y;
   return Math.atan2(delta_y, delta_x);
 }
 
-export function getDistanceBetweenPoints(a: Hero | GBody, b: Hero | GBody) {
+export function getDistanceBetweenPoints(a: GBody, b: GBody) {
   const delta_x = Math.pow(b.pos.x - a.pos.x, 2);
   const delta_y = Math.pow(b.pos.y - a.pos.y, 2);
   return Math.sqrt(delta_x + delta_y);

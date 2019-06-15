@@ -1,16 +1,15 @@
 import * as util from "./util";
-import Hero from "./hero";
 import GBody from "./body";
 import Point from "./point";
 import Collider, { MIN_DISTANCE } from "./collider";
 import Vector from "./vector";
 
-const hero = new Hero(new Point(100, 10), new Vector(2, 0));
+const hero = new GBody(new Point(100, 10), 0, new Vector(2, 0));
 
 const bodies: Array<GBody> = [
-  new GBody(new Point(200, 30), 30),
-  new GBody(new Point(120, 110), 100),
-  new GBody(new Point(180, 90), 220)
+  new GBody(new Point(200, 30), 30, new Vector(0, 0)),
+  new GBody(new Point(120, 110), 100, new Vector(0, 0)),
+  new GBody(new Point(180, 90), 220, new Vector(0, 0))
 ];
 
 export function orbit(canvas: HTMLCanvasElement) {
