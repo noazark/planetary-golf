@@ -54,40 +54,43 @@ interface Frame {
   forEach(callback: Function): void;
 }
 
+// turn this into an iterator that returns frames
+// instead of passing a frame buffer back to render, calculate the frame buffer
+// here and flatten it as frame segements
 export function calculateFrames(moves: Collider) {
   let colliders = Array.from(moves) as Array<Collider>;
-  return colliders.reduce(
-    (frames: Array<Frame>, m1: Collider, i: number) => {
-      let m0: Collider;
-      const frame: Frame = [];
+  return colliders.map((m1: Collider, i: number) => {
+    let m0: Collider;
+    const frame: Frame = [];
 
-      if (i >= 1) {
-        m0 = colliders[i - 1];
-      } else {
-        return frames;
-      }
+    if (i >= 1) {
+      m0 = colliders[i - 1];
+    } else {
+      return frame;
+    }
 
-      m1.bodies.forEach((body, i) => {
-        const magnitude = body.vec.getMagnitude();
-        const magByte = (magnitude / 10) * 255;
+    m1.bodies.forEach((body, i) => {
+      const magnitude = body.vec.getMagnitude();
+      const magByte = (magnitude / 10) * 255;
 
-        frame.push({
-          line: [
-            new Point(m0.bodies[i].pos.x, m0.bodies[i].pos.y),
-            new Point(body.pos.x, body.pos.y)
-          ],
-          strokeStyle: `rgb(${magByte}, 0, 0)`,
-          fillStyle: `rgba(0, 0, 0, .1)`
-        });
+      frame.push({
+        line: [
+          new Point(m0.bodies[i].pos.x, m0.bodies[i].pos.y),
+          new Point(body.pos.x, body.pos.y)
+        ],
+        strokeStyle: `rgb(${magByte}, 0, 0)`,
+        fillStyle: `rgba(0, 0, 0, .1)`
       });
+    });
 
-      return [...frames, frame];
-    },
-    []
-  );
+    return frame;
+  });
 }
 
-export async function render(ctx: CanvasRenderingContext2D, frames: Array<Frame>) {
+export async function render(
+  ctx: CanvasRenderingContext2D,
+  frames: Array<Frame>
+) {
   for (let i = 0; i < frames.length; i++) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     const currentFrame = frames[i];
