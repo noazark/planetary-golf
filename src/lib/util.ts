@@ -1,5 +1,5 @@
 import Collider from "./collider";
-import GBody from "./body";
+import Point from "./point";
 
 export function fixCanvas(canvas: HTMLCanvasElement) {
   const _width = canvas.width;
@@ -14,56 +14,91 @@ export function fixCanvas(canvas: HTMLCanvasElement) {
   }
 }
 
-export function drawBody(ctx: CanvasRenderingContext2D, body: GBody) {
-  const x = body.pos.x;
-  const y = body.pos.y;
-  const color = "gray";
-  const r = 4;
-
-  // Draw the face
+export function drawBody(ctx: CanvasRenderingContext2D, seg: FrameSegment) {
   ctx.beginPath();
-  ctx.arc(x, y, r, 0, 2 * Math.PI);
+  ctx.arc(seg.line[1].x, seg.line[1].y, 4, 0, 2 * Math.PI);
   ctx.closePath();
-  ctx.fillStyle = color;
+  ctx.fillStyle = seg.fillStyle;
   ctx.fill();
 }
 
-async function waitforit() {
-  return new Promise((resolve) => {
-    requestAnimationFrame(() => {
-      resolve()
-    })
-  })
+export function drawPath(ctx: CanvasRenderingContext2D, seg: FrameSegment) {
+  ctx.beginPath();
+  ctx.moveTo(seg.line[0].x, seg.line[0].y);
+  ctx.lineTo(seg.line[1].x, seg.line[1].y);
+
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = seg.strokeStyle;
+
+  ctx.stroke();
+  ctx.closePath();
 }
 
-export async function drawHero(
-  ctx: CanvasRenderingContext2D,
-  moves: Collider,
-  maxIterations: number
-) {
-  let m_1: Collider;
-  let iterations = 0;
-
-  for (let m of moves as Iterable<Collider>) {
-    await waitforit()
-
-    iterations++;
-    m.bodies.forEach((body, i) => {
-      ctx.beginPath();
-      if (m_1) {
-        ctx.moveTo(m_1.bodies[i].pos.x, m_1.bodies[i].pos.y);
-      }
-      ctx.lineTo(body.pos.x, body.pos.y);
-
-      const magnitude = body.vec.getMagnitude();
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = `rgb(${(magnitude / 10) * 255}, 0, 0)`;
-
-      ctx.stroke();
-      ctx.closePath();
+async function waitForIt() {
+  return new Promise(resolve => {
+    requestAnimationFrame(() => {
+      resolve();
     });
-    m_1 = m;
+  });
+}
 
-    if (iterations === maxIterations) break;
+interface FrameSegment {
+  line: Array<Point>;
+  strokeStyle: string;
+  fillStyle: string;
+}
+
+interface Frame {
+  [index: number]: FrameSegment;
+  push(el: FrameSegment): void;
+  forEach(callback: Function): void;
+}
+
+export function calculateFrames(moves: Collider) {
+  let colliders = Array.from(moves) as Array<Collider>;
+  return colliders.reduce(
+    (frames: Array<Frame>, m1: Collider, i: number) => {
+      let m0: Collider;
+      const frame: Frame = [];
+
+      if (i >= 1) {
+        m0 = colliders[i - 1];
+      } else {
+        return frames;
+      }
+
+      m1.bodies.forEach((body, i) => {
+        const magnitude = body.vec.getMagnitude();
+        const magByte = (magnitude / 10) * 255;
+
+        frame.push({
+          line: [
+            new Point(m0.bodies[i].pos.x, m0.bodies[i].pos.y),
+            new Point(body.pos.x, body.pos.y)
+          ],
+          strokeStyle: `rgb(${magByte}, 0, 0)`,
+          fillStyle: `rgba(0, 0, 0, .1)`
+        });
+      });
+
+      return [...frames, frame];
+    },
+    []
+  );
+}
+
+export async function render(ctx: CanvasRenderingContext2D, frames: Array<Frame>) {
+  for (let i = 0; i < frames.length; i++) {
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    const currentFrame = frames[i];
+    const frameBuffer = frames.slice(Math.max(0, i - 10), i);
+
+    currentFrame.forEach((seg: FrameSegment) => drawBody(ctx, seg));
+
+    frameBuffer.forEach((f: Frame) => {
+      f.forEach((seg: FrameSegment) => drawPath(ctx, seg));
+    });
+
+    await waitForIt();
   }
 }
