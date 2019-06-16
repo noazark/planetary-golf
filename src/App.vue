@@ -6,11 +6,23 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import { orbit } from "./lib/orbit";
+import { fixCanvas } from "./lib/canvas";
+import * as levels from "./lib/levels";
+import * as util from "./lib/util";
 
 @Component({
   mounted() {
-    orbit(this.$refs.canvas as HTMLCanvasElement);
+    const canvas = this.$refs.canvas as HTMLCanvasElement;
+
+    fixCanvas(canvas);
+    const ctx = canvas.getContext("2d");
+
+    let moves = levels.harmony();
+
+    if (canvas && ctx) {
+      const frames = util.render(moves);
+      util.draw(ctx, frames);
+    }
   }
 })
 export default class App extends Vue {}
