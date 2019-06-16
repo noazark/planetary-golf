@@ -147,6 +147,11 @@ export function calculateFrames(moves: Collider, maxFrames: number = 1000) {
   return frames;
 }
 
+const draw: { [index:string] : Function } = {
+  Arc: (ctx: CanvasRenderingContext2D, seg: Arc) => drawArc(ctx, seg),
+  Path: (ctx: CanvasRenderingContext2D, seg: Path) => drawPath(ctx, seg)
+};
+
 export async function render(
   ctx: CanvasRenderingContext2D,
   frames: Array<Frame>
@@ -155,10 +160,6 @@ export async function render(
     const currentFrame = frames[i];
 
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    const draw = {
-      Arc: (ctx: CanvasRenderingContext2D, seg: Arc) => drawArc(ctx, seg),
-      Path: (ctx: CanvasRenderingContext2D, seg: Path) => drawPath(ctx, seg)
-    };
     currentFrame.forEach((seg: FrameSegment) => draw[seg.type](ctx, seg));
 
     await waitForIt();
