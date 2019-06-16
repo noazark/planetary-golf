@@ -49,8 +49,8 @@ interface PathConfig {
 }
 
 class Path implements PathConfig {
-  public line: Array<Point>;
-  public strokeStyle: string;
+  public readonly line: Array<Point>;
+  public readonly strokeStyle: string;
 
   constructor(config: PathConfig) {
     this.line = config.line;
@@ -64,8 +64,8 @@ interface ArcConfig {
 }
 
 class Arc implements ArcConfig {
-  public c: Point;
-  public fillStyle: string;
+  public readonly c: Point;
+  public readonly fillStyle: string;
 
   constructor(config: ArcConfig) {
     this.c = config.c;
@@ -86,7 +86,7 @@ class Buffer {
   public length: number;
   public bufferedLength: number;
 
-  constructor(public maxLength: number) {
+  constructor(public readonly maxLength: number) {
     this._buff = [];
     this.length = 0;
     this.bufferedLength = 0;
@@ -144,7 +144,7 @@ export function render(moves: Collider, maxFrames: number = Infinity) {
                 (frame: Array<FrameSegment>, [_m0, _m2]: Array<Collider>) => {
                   const segments = _m2.bodies.map((body: GBody, i: number) => {
                     const magnitude = body.vec.getMagnitude();
-                    const mag = (magnitude / 10);
+                    const mag = magnitude / 10;
                     const p0 = _m0.bodies[i].pos;
                     const p1 = body.pos;
 

@@ -1,14 +1,10 @@
 export default class Vector {
-  constructor(public x: number = 0, public y: number = 0) {
-    this.x = x;
-    this.y = y;
-  }
+  constructor(public readonly x: number = 0, public readonly y: number = 0) {}
 
   static fromEuclidean(magnitude: number, direction: number) {
-    const vector = new Vector();
-    vector.setMagnitude(magnitude);
-    vector.setDirection(direction);
-    return vector;
+    const x = Math.cos(direction) * magnitude;
+    const y = Math.sin(direction) * magnitude;
+    return new Vector(x, y);
   }
 
   getDirection() {
@@ -17,8 +13,7 @@ export default class Vector {
 
   setDirection(direction: number) {
     var magnitude = this.getMagnitude();
-    this.x = Math.cos(direction) * magnitude;
-    this.y = Math.sin(direction) * magnitude;
+    return Vector.fromEuclidean(magnitude, direction)
   }
 
   getMagnitude(): number {
@@ -27,8 +22,7 @@ export default class Vector {
 
   setMagnitude(magnitude: number) {
     var direction = this.getDirection();
-    this.x = Math.cos(direction) * magnitude;
-    this.y = Math.sin(direction) * magnitude;
+    return Vector.fromEuclidean(magnitude, direction)
   }
 
   add(v2: Vector): Vector {

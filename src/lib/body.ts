@@ -3,16 +3,11 @@ import Vector from "./vector";
 
 export default class GBody {
   constructor(
-    public pos: Point,
-    public mass: number,
-    public vec: Vector,
-    public fixed: boolean = false
-  ) {
-    this.pos = pos;
-    this.mass = mass;
-    this.vec = vec;
-    this.fixed = fixed;
-  }
+    public readonly pos: Point,
+    public readonly mass: number,
+    public readonly vec: Vector,
+    public readonly fixed: boolean = false
+  ) {}
 
   applyForce(v: Vector) {
     const _vec = this.vec.add(v);

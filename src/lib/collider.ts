@@ -7,10 +7,10 @@ interface ColliderConfig {
 }
 
 export default class Collider {
-  constructor(public bodies: Array<GBody>, public config: ColliderConfig) {
-    this.bodies = bodies;
-    this.config = config;
-  }
+  constructor(
+    public readonly bodies: Array<GBody>,
+    public readonly config: ColliderConfig
+  ) {}
 
   static next(collider: Collider) {
     let bodies = collider.bodies.map((hero: GBody, i: number) => {
@@ -40,9 +40,5 @@ export default class Collider {
     });
 
     return new Collider(bodies, collider.config);
-  }
-
-  clone() {
-    return new Collider(this.bodies, this.config);
   }
 }

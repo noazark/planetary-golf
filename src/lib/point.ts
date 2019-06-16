@@ -1,8 +1,5 @@
 export default class Point {
-  constructor(public x: number, public y: number) {
-    this.x = x;
-    this.y = y;
-  }
+  constructor(public readonly x: number, public readonly y: number) {}
 
   getAngle(b: Point) {
     const delta_x = b.x - this.x;
