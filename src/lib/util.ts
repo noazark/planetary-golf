@@ -2,14 +2,6 @@ import Collider from "./collider";
 import GBody from "./body";
 import { CanvasObject, Arc, Path } from "./canvas";
 
-async function waitForIt() {
-  return new Promise(resolve => {
-    requestAnimationFrame(() => {
-      resolve();
-    });
-  });
-}
-
 type Frame = Array<CanvasObject>;
 
 class Buffer {
@@ -105,6 +97,6 @@ export async function draw(
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     frame.forEach((seg: CanvasObject) => seg.render(ctx));
 
-    await waitForIt();
+    await new Promise(requestAnimationFrame);
   }
 }
