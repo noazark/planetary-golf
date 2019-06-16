@@ -8,15 +8,13 @@ interface ChaosConfig {
   spread: number;
 }
 export function chaos(config: ChaosConfig) {
-  const n = config.height / config.spread;
+  const length = config.height / config.spread;
 
   const bodies: Array<GBody> = [
-    ...new Array(n + 1)
-      .fill(null)
-      .map(
-        (_, i) =>
-          new GBody(new Point(0, i * config.spread), 0, new Vector(3, 0))
-      ),
+    ...Array.from(
+      { length },
+      (_, i) => new GBody(new Point(0, i * config.spread), 0, new Vector(2, 0))
+    ),
 
     new GBody(new Point(300, 100), 500, new Vector(0, 0), true),
     new GBody(new Point(280, 240), 100, new Vector(0, 0), true),
