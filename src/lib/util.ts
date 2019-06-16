@@ -28,6 +28,14 @@ export function drawBody(ctx: CanvasRenderingContext2D, body: GBody) {
   ctx.fill();
 }
 
+async function waitforit() {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => {
+      resolve()
+    })
+  })
+}
+
 export async function drawHero(
   ctx: CanvasRenderingContext2D,
   moves: Collider,
@@ -37,6 +45,8 @@ export async function drawHero(
   let iterations = 0;
 
   for (let m of moves as Iterable<Collider>) {
+    await waitforit()
+
     iterations++;
     m.bodies.forEach((body, i) => {
       ctx.beginPath();
