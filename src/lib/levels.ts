@@ -38,6 +38,16 @@ export function accelerator(config?: AcceleratorConfig) {
   return new Collider(bodies, { COEF_FRICTION: 0.005 });
 }
 
+interface LeapFrogConfig {}
+export function leapFrog(config?: LeapFrogConfig) {
+  const bodies: Array<GBody> = [
+    new GBody(new Point(0, 130), 100, new Vector(1, 0)),
+    new GBody(new Point(0, 170), 30, new Vector(0, 0)),
+  ];
+
+  return new Collider(bodies, { COEF_FRICTION: 0 });
+}
+
 interface HarmonyConfig {}
 export function harmony(config?: HarmonyConfig) {
   const bodies: Array<GBody> = [
