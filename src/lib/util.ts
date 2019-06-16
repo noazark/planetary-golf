@@ -119,62 +119,68 @@ class Buffer {
   }
 }
 
-// turn this into an iterator that returns frames
-export function calculateFrames(moves: Collider, maxFrames: number = Infinity) {
-  let colliders = new Buffer(10);
-  let frames: Array<Frame> = [];
+export function render(moves: Collider, maxFrames: number = Infinity) {
+  let _moves = moves;
+  let colliders = new Buffer(30);
 
-  for (let m1 of moves) {
-    if (!m1) continue;
+  return {
+    [Symbol.iterator]() {
+      return {
+        next() {
+          _moves = Collider.next(_moves);
+          colliders.add(_moves);
 
-    colliders.add(m1);
-
-    if (colliders.length >= 1) {
-      const bodies = m1.bodies.map((body: GBody, i: number) => {
-        return new Arc({
-          c: body.pos,
-          fillStyle: "rgba(255, 255, 255, .3)"
-        });
-      });
-
-      const paths = colliders
-        .pairs()
-        .reduce((frame: Array<FrameSegment>, [_m0, _m2]: Array<Collider>) => {
-          const segments = _m2.bodies.map((body: GBody, i: number) => {
-            const magnitude = body.vec.getMagnitude();
-            const magByte = (magnitude / 10) * 255;
-            const p0 = _m0.bodies[i].pos;
-            const p1 = body.pos;
-
-            return new Path({
-              line: [p0, p1],
-              strokeStyle: `rgba(255, 0, 0, ${magByte / 255})`
+          if (colliders.length >= 1) {
+            const bodies = _moves.bodies.map((body: GBody, i: number) => {
+              return new Arc({
+                c: body.pos,
+                fillStyle: "rgba(255, 255, 255, .3)"
+              });
             });
-          });
-          return [...frame, ...segments];
-        }, []);
 
-      frames = [...frames, [...bodies, ...paths]];
+            const paths = colliders
+              .pairs()
+              .reduce(
+                (frame: Array<FrameSegment>, [_m0, _m2]: Array<Collider>) => {
+                  const segments = _m2.bodies.map((body: GBody, i: number) => {
+                    const magnitude = body.vec.getMagnitude();
+                    const mag = (magnitude / 10);
+                    const p0 = _m0.bodies[i].pos;
+                    const p1 = body.pos;
+
+                    return new Path({
+                      line: [p0, p1],
+                      strokeStyle: `rgba(255, ${mag * 255}, 0, ${mag})`
+                    });
+                  });
+                  return [...frame, ...segments];
+                },
+                []
+              );
+
+            return { value: [...bodies, ...paths], done: false };
+          }
+
+          if (colliders.length === maxFrames) return { value: [], done: true };
+          else return { value: [], done: false };
+        }
+      };
     }
-
-    if (colliders.length === maxFrames) break;
-  }
-
-  return frames;
+  };
 }
 
-const draw: { [index: string]: Function } = {
+const _draw: { [index: string]: Function } = {
   Arc: (ctx: CanvasRenderingContext2D, seg: Arc) => drawArc(ctx, seg),
   Path: (ctx: CanvasRenderingContext2D, seg: Path) => drawPath(ctx, seg)
 };
 
-export async function render(
+export async function draw(
   ctx: CanvasRenderingContext2D,
-  frames: Array<Frame>
+  frames: Iterable<Frame>
 ) {
   for (let frame of frames) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    frame.forEach((seg: FrameSegment) => draw[seg.constructor.name](ctx, seg));
+    frame.forEach((seg: FrameSegment) => _draw[seg.constructor.name](ctx, seg));
 
     await waitForIt();
   }

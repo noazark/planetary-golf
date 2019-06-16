@@ -45,26 +45,4 @@ export default class Collider {
   clone() {
     return new Collider(this.bodies, this.config);
   }
-
-  [Symbol.iterator]() {
-    return {
-      _collider: this.clone(),
-      next() {
-        try {
-          this._collider = Collider.next(this._collider);
-
-          return {
-            value: this._collider,
-            done: false
-          };
-        } catch (e) {
-          if (e instanceof OrbitalError) {
-            return { value: null, done: true };
-          } else {
-            throw e;
-          }
-        }
-      }
-    };
-  }
 }
