@@ -1,5 +1,5 @@
 import Collider from "./collider";
-import GBody from "./body";
+import Particle from "./body";
 import { CanvasObject, Arc, Path } from "./canvas";
 
 type Frame = Array<CanvasObject>;
@@ -54,7 +54,7 @@ export function render(moves: Collider, maxFrames: number = Infinity) {
           colliders.add(_moves);
 
           if (colliders.length >= 1) {
-            const bodies = _moves.bodies.map((body: GBody, i: number) => {
+            const bodies = _moves.bodies.map((body: Particle, i: number) => {
               return new Arc({
                 c: body.pos,
                 fillStyle: "rgba(255, 255, 255, .3)"
@@ -64,7 +64,7 @@ export function render(moves: Collider, maxFrames: number = Infinity) {
             const paths = colliders
               .pairs()
               .reduce((frame: Frame, [_m0, _m2]: Array<Collider>) => {
-                const segments = _m2.bodies.map((body: GBody, i: number) => {
+                const segments = _m2.bodies.map((body: Particle, i: number) => {
                   const magnitude = body.vec.getMagnitude();
                   const mag = magnitude / 10;
                   const p0 = _m0.bodies[i].pos;

@@ -1,4 +1,4 @@
-import GBody from "./body";
+import Particle from "./body";
 
 export class OrbitalError extends Error {}
 
@@ -8,12 +8,12 @@ interface ColliderConfig {
 
 export default class Collider {
   constructor(
-    public readonly bodies: Array<GBody>,
+    public readonly bodies: Array<Particle>,
     public readonly config: ColliderConfig
   ) {}
 
   static next(collider: Collider) {
-    let bodies = collider.bodies.map((hero: GBody, i: number) => {
+    let bodies = collider.bodies.map((hero: Particle, i: number) => {
       hero = collider.bodies.reduce((hero, body, j: number) => {
         // calculate gravitational pull and apply it to hero
         if (i == j || hero.fixed) {

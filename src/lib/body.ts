@@ -1,7 +1,7 @@
 import Point from "./point";
 import Vector from "./vector";
 
-export default class GBody {
+export default class Particle {
   constructor(
     public readonly pos: Point,
     public readonly mass: number,
@@ -11,24 +11,24 @@ export default class GBody {
 
   applyForce(v: Vector) {
     const _vec = this.vec.add(v);
-    return new GBody(this.pos, this.mass, _vec, this.fixed);
+    return new Particle(this.pos, this.mass, _vec, this.fixed);
   }
 
   next() {
     const _x = this.pos.x + this.vec.x;
     const _y = this.pos.y + this.vec.y;
-    return new GBody(new Point(_x, _y), this.mass, this.vec, this.fixed);
+    return new Particle(new Point(_x, _y), this.mass, this.vec, this.fixed);
   }
 
-  getAngle(body: GBody) {
+  getAngle(body: Particle) {
     return this.pos.getAngle(body.pos);
   }
 
-  getDistance(body: GBody) {
+  getDistance(body: Particle) {
     return this.pos.getDistance(body.pos);
   }
 
-  pull(body: GBody) {
+  pull(body: Particle) {
     const theta = this.getAngle(body);
     const distance = this.getDistance(body);
 
