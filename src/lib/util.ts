@@ -1,5 +1,6 @@
 import Collider from "./collider";
 import Point from "./point";
+import GBody from "./body";
 
 export function fixCanvas(canvas: HTMLCanvasElement) {
   const _width = canvas.width;
@@ -57,34 +58,39 @@ interface Frame {
 // turn this into an iterator that returns frames
 // instead of passing a frame buffer back to render, calculate the frame buffer
 // here and flatten it as frame segements
-export function calculateFrames(moves: Collider) {
-  let colliders = Array.from(moves) as Array<Collider>;
-  return colliders.map((m1: Collider, i: number) => {
-    let m0: Collider;
-    const frame: Frame = [];
+export function calculateFrames(moves: Collider, maxFrames: number = 1000) {
+  let colliders: Array<Collider> = [];
+  let frames: Array<Frame> = [];
+  let i = 0;
 
-    if (i >= 1) {
-      m0 = colliders[i - 1];
-    } else {
-      return frame;
+  for (let m1 of moves) {
+    if (!m1) continue;
+    else if (i >= 1) {
+      let m0 = colliders[i - 1];
+
+      const frame = m1.bodies.map((body: GBody, i: number) => {
+        const magnitude = body.vec.getMagnitude();
+        const magByte = (magnitude / 10) * 255;
+        const p0 = m0.bodies[i].pos;
+        const p1 = body.pos;
+
+        return {
+          line: [p0, p1],
+          strokeStyle: `rgb(${magByte}, 0, 0)`,
+          fillStyle: `rgba(0, 0, 0, .1)`
+        };
+      });
+
+      frames.push(frame);
     }
 
-    m1.bodies.forEach((body, i) => {
-      const magnitude = body.vec.getMagnitude();
-      const magByte = (magnitude / 10) * 255;
+    colliders.push(m1);
+    i++;
 
-      frame.push({
-        line: [
-          new Point(m0.bodies[i].pos.x, m0.bodies[i].pos.y),
-          new Point(body.pos.x, body.pos.y)
-        ],
-        strokeStyle: `rgb(${magByte}, 0, 0)`,
-        fillStyle: `rgba(0, 0, 0, .1)`
-      });
-    });
+    if (i === maxFrames) break;
+  }
 
-    return frame;
-  });
+  return frames;
 }
 
 export async function render(

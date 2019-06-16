@@ -8,7 +8,7 @@ export function orbit(canvas: HTMLCanvasElement) {
   let moves = levels.harmony();
 
   if (canvas && ctx) {
-    const frames = util.calculateFrames(moves);
+    const frames = util.calculateFrames(moves, 1000);
     util.render(ctx, frames);
   }
 }
