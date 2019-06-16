@@ -43,16 +43,34 @@ async function waitForIt() {
   });
 }
 
-interface Path {
-  type: string;
+interface PathConfig {
   line: Array<Point>;
   strokeStyle: string;
 }
 
-interface Arc {
-  type: string;
+class Path implements PathConfig {
+  public line: Array<Point>;
+  public strokeStyle: string;
+
+  constructor(config: PathConfig) {
+    this.line = config.line;
+    this.strokeStyle = config.strokeStyle;
+  }
+}
+
+interface ArcConfig {
   c: Point;
   fillStyle: string;
+}
+
+class Arc implements ArcConfig {
+  public c: Point;
+  public fillStyle: string;
+
+  constructor(config: ArcConfig) {
+    this.c = config.c;
+    this.fillStyle = config.fillStyle;
+  }
 }
 
 type FrameSegment = Path | Arc;
@@ -102,7 +120,7 @@ class Buffer {
 }
 
 // turn this into an iterator that returns frames
-export function calculateFrames(moves: Collider, maxFrames: number = 1000) {
+export function calculateFrames(moves: Collider, maxFrames: number = Infinity) {
   let colliders = new Buffer(10);
   let frames: Array<Frame> = [];
 
@@ -113,11 +131,10 @@ export function calculateFrames(moves: Collider, maxFrames: number = 1000) {
 
     if (colliders.length >= 1) {
       const bodies = m1.bodies.map((body: GBody, i: number) => {
-        return {
-          type: "Arc",
+        return new Arc({
           c: body.pos,
           fillStyle: "rgba(0, 0, 0, .1)"
-        };
+        });
       });
 
       const paths = colliders
@@ -129,11 +146,10 @@ export function calculateFrames(moves: Collider, maxFrames: number = 1000) {
             const p0 = _m0.bodies[i].pos;
             const p1 = body.pos;
 
-            return {
-              type: "Path",
+            return new Path({
               line: [p0, p1],
               strokeStyle: `rgb(${magByte}, 0, 0)`
-            };
+            });
           });
           return [...frame, ...segments];
         }, []);
@@ -147,7 +163,7 @@ export function calculateFrames(moves: Collider, maxFrames: number = 1000) {
   return frames;
 }
 
-const draw: { [index:string] : Function } = {
+const draw: { [index: string]: Function } = {
   Arc: (ctx: CanvasRenderingContext2D, seg: Arc) => drawArc(ctx, seg),
   Path: (ctx: CanvasRenderingContext2D, seg: Path) => drawPath(ctx, seg)
 };
@@ -156,11 +172,9 @@ export async function render(
   ctx: CanvasRenderingContext2D,
   frames: Array<Frame>
 ) {
-  for (let i = 0; i < frames.length; i++) {
-    const currentFrame = frames[i];
-
+  for (let frame of frames) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    currentFrame.forEach((seg: FrameSegment) => draw[seg.type](ctx, seg));
+    frame.forEach((seg: FrameSegment) => draw[seg.constructor.name](ctx, seg));
 
     await waitForIt();
   }
