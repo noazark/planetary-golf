@@ -133,7 +133,7 @@ export function calculateFrames(moves: Collider, maxFrames: number = Infinity) {
       const bodies = m1.bodies.map((body: GBody, i: number) => {
         return new Arc({
           c: body.pos,
-          fillStyle: "rgba(0, 0, 0, .1)"
+          fillStyle: "rgba(255, 255, 255, .3)"
         });
       });
 
@@ -148,7 +148,7 @@ export function calculateFrames(moves: Collider, maxFrames: number = Infinity) {
 
             return new Path({
               line: [p0, p1],
-              strokeStyle: `rgb(${magByte}, 0, 0)`
+              strokeStyle: `rgba(255, 0, 0, ${magByte / 255})`
             });
           });
           return [...frame, ...segments];
