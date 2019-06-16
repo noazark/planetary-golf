@@ -45,5 +45,5 @@ export function harmony(config?: HarmonyConfig) {
     new GBody(new Point(300, 200), 800, new Vector(-1, 0), false)
   ];
 
-  return new Collider(bodies, { COEF_FRICTION: 0 });
+  return new Collider(bodies, { COEF_FRICTION: 0, maxIterations: 1000 });
 }

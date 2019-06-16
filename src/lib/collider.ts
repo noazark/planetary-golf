@@ -4,6 +4,7 @@ export class OrbitalError extends Error {}
 
 interface ColliderConfig {
   COEF_FRICTION: number;
+  maxIterations?: number;
 }
 
 export default class Collider {
@@ -47,15 +48,19 @@ export default class Collider {
   }
 
   [Symbol.iterator]() {
+    const config = this.config;
+
     return {
       _collider: this.clone(),
+      _iterations: 0,
       next() {
         try {
           this._collider = Collider.next(this._collider);
+          this._iterations++;
 
           return {
             value: this._collider,
-            done: false
+            done: this._iterations === config.maxIterations
           };
         } catch (e) {
           if (e instanceof OrbitalError) {
