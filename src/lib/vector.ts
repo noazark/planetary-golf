@@ -13,7 +13,7 @@ export default class Vector {
 
   setDirection(direction: number) {
     var magnitude = this.getMagnitude();
-    return Vector.fromEuclidean(magnitude, direction)
+    return Vector.fromEuclidean(magnitude, direction);
   }
 
   getMagnitude(): number {
@@ -22,7 +22,7 @@ export default class Vector {
 
   setMagnitude(magnitude: number) {
     var direction = this.getDirection();
-    return Vector.fromEuclidean(magnitude, direction)
+    return Vector.fromEuclidean(magnitude, direction);
   }
 
   add(v2: Vector): Vector {

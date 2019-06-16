@@ -1,6 +1,6 @@
 import Collider from "./collider";
 import GBody from "./body";
-import { CanvasObject, Arc, Path } from './canvas';
+import { CanvasObject, Arc, Path } from "./canvas";
 
 async function waitForIt() {
   return new Promise(resolve => {
@@ -10,7 +10,7 @@ async function waitForIt() {
   });
 }
 
-type Frame = Array<CanvasObject>
+type Frame = Array<CanvasObject>;
 
 class Buffer {
   private _buff: Array<any>;
@@ -71,23 +71,20 @@ export function render(moves: Collider, maxFrames: number = Infinity) {
 
             const paths = colliders
               .pairs()
-              .reduce(
-                (frame: Frame, [_m0, _m2]: Array<Collider>) => {
-                  const segments = _m2.bodies.map((body: GBody, i: number) => {
-                    const magnitude = body.vec.getMagnitude();
-                    const mag = magnitude / 10;
-                    const p0 = _m0.bodies[i].pos;
-                    const p1 = body.pos;
+              .reduce((frame: Frame, [_m0, _m2]: Array<Collider>) => {
+                const segments = _m2.bodies.map((body: GBody, i: number) => {
+                  const magnitude = body.vec.getMagnitude();
+                  const mag = magnitude / 10;
+                  const p0 = _m0.bodies[i].pos;
+                  const p1 = body.pos;
 
-                    return new Path({
-                      line: [p0, p1],
-                      strokeStyle: `rgba(255, ${mag * 255}, 0, ${mag})`
-                    });
+                  return new Path({
+                    line: [p0, p1],
+                    strokeStyle: `rgba(255, ${mag * 255}, 0, ${mag})`
                   });
-                  return [...frame, ...segments];
-                },
-                []
-              );
+                });
+                return [...frame, ...segments];
+              }, []);
 
             return { value: [...bodies, ...paths], done: false };
           }

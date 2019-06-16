@@ -42,7 +42,7 @@ interface LeapFrogConfig {}
 export function leapFrog(config?: LeapFrogConfig) {
   const bodies: Array<GBody> = [
     new GBody(new Point(0, 130), 100, new Vector(1, 0)),
-    new GBody(new Point(0, 170), 30, new Vector(0, 0)),
+    new GBody(new Point(0, 170), 30, new Vector(0, 0))
   ];
 
   return new Collider(bodies, { COEF_FRICTION: 0 });

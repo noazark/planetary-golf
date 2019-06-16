@@ -1,5 +1,5 @@
 import Point from "./point";
-import { CanvasObject } from './canvas';
+import { CanvasObject } from "./canvas";
 
 interface PathConfig {
   line: Array<Point>;

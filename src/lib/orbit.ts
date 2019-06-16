@@ -1,9 +1,9 @@
 import * as util from "./util";
 import * as levels from "./levels";
-import { fixCanvas } from './canvas';
+import { fixCanvas } from "./canvas";
 
 export function orbit(canvas: HTMLCanvasElement) {
-  fixCanvas(canvas)
+  fixCanvas(canvas);
   const ctx = canvas.getContext("2d");
 
   let moves = levels.harmony();
