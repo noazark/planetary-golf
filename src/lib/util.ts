@@ -26,6 +26,7 @@ export function render(
       return {
         next() {
           _moves = _moves.next();
+          _moves = _moves.move();
           colliders.add(_moves);
 
           if (colliders.length >= config.maxFrames) {
@@ -38,6 +39,15 @@ export function render(
                 return new Arc({
                   c: body.pos,
                   fillStyle: "rgba(255, 255, 255, .3)"
+                });
+              }
+            );
+
+            const vectors = _moves.particles.map(
+              (body: Particle, i: number) => {
+                return new Path({
+                  line: [body.pos, body.pos.translate(body.vec.multiply(10))],
+                  strokeStyle: "rgba(0, 255, 0, 1)"
                 });
               }
             );
@@ -61,7 +71,7 @@ export function render(
                 return [...frame, ...segments];
               }, []);
 
-            return { value: [...particles, ...paths], done: false };
+            return { value: [...particles, ...paths, ...vectors], done: false };
           } else {
             return { value: [], done: false };
           }

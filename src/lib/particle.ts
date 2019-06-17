@@ -20,9 +20,12 @@ export default class Particle {
   }
 
   next() {
-    const _x = this.pos.x + this.vec.x;
-    const _y = this.pos.y + this.vec.y;
-    return new Particle(new Point(_x, _y), this.mass, this.vec, this.fixed);
+    return new Particle(
+      this.pos.translate(this.vec),
+      this.mass,
+      this.vec,
+      this.fixed
+    );
   }
 
   getAngle(body: Particle) {

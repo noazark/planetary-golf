@@ -11,14 +11,11 @@ export default class Collider {
     public readonly config: ColliderConfig
   ) {}
 
+  // Calculate next collider
   next() {
     const { COEF_FRICTION } = this.config;
-    let particles;
 
-    //
-    // calculate forces
-    //
-    particles = this.particles.map((a: Particle, i: number) => {
+    let particles = this.particles.map((a: Particle, i: number) => {
       if (a.fixed) {
         return a;
       }
@@ -36,31 +33,39 @@ export default class Collider {
       return a.setMagnitude(mag);
     });
 
-    //
-    // detect collisions
-    //
+    return new Collider(particles, this.config);
+  }
 
+  // move particles along their vectors
+  move() {
     // just detecting and correcting, ultimately this should be more
-    // sophisticated
-    particles = particles.map((a, i) => {
-      const collision = this.particles.some(
+    // sophisticated and have collision handling somewhere else
+    let collider = Collider.mapCollisions(
+      this,
+
+      // right now we just set the particle to fixed
+      // should handle this with some maths
+      (a: Particle) => new Particle(a.pos, a.mass, new Vector(), true)
+    );
+    let particles = collider.particles.map((particle: Particle) =>
+      particle.next()
+    );
+    return new Collider(particles, this.config);
+  }
+
+  static mapCollisions(collider: Collider, handler: Function) {
+    let particles = collider.particles.map((a, i) => {
+      const collisions = collider.particles.filter(
         (b, j) => i !== j && a.doesIntersect(b)
       );
 
-      if (collision) {
-        // right now we just set the particle to fixed
-        // should handle this with some maths
-        return new Particle(a.pos, a.mass, new Vector(), true);
+      if (collisions.length > 0) {
+        return handler(a, collisions);
       } else {
         return a;
       }
     });
 
-    //
-    // calculate new particle positions
-    //
-    particles = particles.map(particle => particle.next());
-
-    return new Collider(particles, this.config);
+    return new Collider(particles, collider.config);
   }
 }

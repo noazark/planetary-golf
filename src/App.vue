@@ -11,7 +11,7 @@
 
     <template v-if="!isRunning">
       <button @click="start">start</button>
-      <button @click="next">next</button>
+      <button @click="step">step</button>
     </template>
     <template v-else>
       <button @click="stop">stop</button>
@@ -45,14 +45,14 @@ export default class App extends Vue {
   private renderConfig = {
     maxFrames: Infinity,
     tailLength: 30,
-    energyMultiplier: 0.1
+    energyMultiplier: 0.2
   };
 
   constructor() {
     super();
 
     this.selectedLevel = Object.keys(levels)[0];
-    this.engine = new Loop(() => this.next());
+    this.engine = new Loop(() => this.step());
     this.engine.stop();
   }
 
@@ -76,7 +76,7 @@ export default class App extends Vue {
   updateLevel() {
     const moves = getLevel(this.selectedLevel);
     this.frames = util.render(moves, this.renderConfig);
-    this.next();
+    this.step();
   }
 
   start() {
@@ -87,14 +87,19 @@ export default class App extends Vue {
     this.engine.stop();
   }
 
-  next() {
+  step() {
     const canvas = this.$refs.canvas as HTMLCanvasElement;
     if (canvas) {
       const ctx = canvas.getContext("2d");
 
       if (this.frames && ctx) {
-        const frame = this.frames[Symbol.iterator]().next().value;
-        util.draw(ctx, frame);
+        const step = this.frames[Symbol.iterator]().next();
+        if (!step.done) {
+          const frame = step.value;
+          util.draw(ctx, frame);
+        } else {
+          this.engine.stop();
+        }
       }
     }
   }
