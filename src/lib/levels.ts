@@ -7,13 +7,14 @@ interface ChaosConfig {
   height: number;
   spread: number;
 }
-export function chaos(config: ChaosConfig) {
+export function chaos(config: ChaosConfig = { height: 300, spread: 5 }) {
   const length = config.height / config.spread;
 
   const bodies: Array<Particle> = [
     ...Array.from(
       { length },
-      (_, i) => new Particle(new Point(0, i * config.spread), 0, new Vector(2, 0))
+      (_, i) =>
+        new Particle(new Point(0, i * config.spread), 1, new Vector(2, 0))
     ),
 
     new Particle(new Point(300, 100), 500, new Vector(0, 0), true),
@@ -22,7 +23,7 @@ export function chaos(config: ChaosConfig) {
     new Particle(new Point(300, 200), 100, new Vector(0, 0), true)
   ];
 
-  return new Collider(bodies, { COEF_FRICTION: 0.005 });
+  return new Collider(bodies, { COEF_FRICTION: 0.022 });
 }
 
 interface AcceleratorConfig {}
@@ -35,7 +36,7 @@ export function accelerator(config?: AcceleratorConfig) {
     new Particle(new Point(300, 200), 500, new Vector(0, 0), true)
   ];
 
-  return new Collider(bodies, { COEF_FRICTION: 0.005 });
+  return new Collider(bodies, { COEF_FRICTION: 0 });
 }
 
 interface LeapFrogConfig {}
