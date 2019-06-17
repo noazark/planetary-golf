@@ -50,31 +50,35 @@ export function render(moves: Collider, maxFrames: number = Infinity) {
     [Symbol.iterator]() {
       return {
         next() {
-          _moves = Collider.next(_moves);
+          _moves = _moves.next();
           colliders.add(_moves);
 
           if (colliders.length >= 1) {
-            const particles = _moves.particles.map((body: Particle, i: number) => {
-              return new Arc({
-                c: body.pos,
-                fillStyle: "rgba(255, 255, 255, .3)"
-              });
-            });
+            const particles = _moves.particles.map(
+              (body: Particle, i: number) => {
+                return new Arc({
+                  c: body.pos,
+                  fillStyle: "rgba(255, 255, 255, .3)"
+                });
+              }
+            );
 
             const paths = colliders
               .pairs()
               .reduce((frame: Frame, [_m0, _m2]: Array<Collider>) => {
-                const segments = _m2.particles.map((body: Particle, i: number) => {
-                  const magnitude = body.vec.getMagnitude();
-                  const mag = magnitude / 10;
-                  const p0 = _m0.particles[i].pos;
-                  const p1 = body.pos;
+                const segments = _m2.particles.map(
+                  (body: Particle, i: number) => {
+                    const magnitude = body.vec.getMagnitude();
+                    const mag = magnitude / 10;
+                    const p0 = _m0.particles[i].pos;
+                    const p1 = body.pos;
 
-                  return new Path({
-                    line: [p0, p1],
-                    strokeStyle: `rgba(255, ${mag * 255}, 0, ${mag})`
-                  });
-                });
+                    return new Path({
+                      line: [p0, p1],
+                      strokeStyle: `rgba(255, ${mag * 255}, 0, ${mag})`
+                    });
+                  }
+                );
                 return [...frame, ...segments];
               }, []);
 

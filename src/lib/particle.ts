@@ -14,6 +14,11 @@ export default class Particle {
     return new Particle(this.pos, this.mass, _vec, this.fixed);
   }
 
+  setMagnitude(magnitude: number) {
+    const _vec = this.vec.setMagnitude(magnitude);
+    return new Particle(this.pos, this.mass, _vec, this.fixed);
+  }
+
   next() {
     const _x = this.pos.x + this.vec.x;
     const _y = this.pos.y + this.vec.y;
@@ -26,6 +31,25 @@ export default class Particle {
 
   getDistance(body: Particle) {
     return this.pos.getDistance(body.pos);
+  }
+
+  doesIntersect(body: Particle) {
+    const { x: a, y: b } = this.pos;
+    const c = a + this.vec.x;
+    const d = b + this.vec.y;
+
+    const { x: p, y: q } = body.pos;
+    const r = p + body.vec.x;
+    const s = q + body.vec.y;
+
+    const det = (c - a) * (s - q) - (r - p) * (d - b);
+    if (det === 0) {
+      return false;
+    } else {
+      const lambda = ((s - q) * (r - a) + (p - r) * (s - b)) / det;
+      const gamma = ((b - d) * (r - a) + (c - a) * (s - b)) / det;
+      return 0 < lambda && lambda < 1 && (0 < gamma && gamma < 1);
+    }
   }
 
   pull(body: Particle) {

@@ -1,4 +1,5 @@
 import Particle from "./particle";
+import Vector from "./vector";
 
 interface ColliderConfig {
   COEF_FRICTION: number;
@@ -10,35 +11,56 @@ export default class Collider {
     public readonly config: ColliderConfig
   ) {}
 
-  static next(collider: Collider) {
-    let particles = collider.particles.map((hero: Particle, i: number) => {
-      hero = collider.particles.reduce((hero, body, j: number) => {
-        if (i == j || hero.fixed) {
-          return hero;
+  next() {
+    const { COEF_FRICTION } = this.config;
+    let particles;
+
+    //
+    // calculate forces
+    //
+    particles = this.particles.map((a: Particle, i: number) => {
+      if (a.fixed) {
+        return a;
+      }
+
+      a = this.particles.reduce((a, b, j: number) => {
+        if (i == j || a.fixed) {
+          return a;
         } else {
-          return hero.pull(body);
+          return a.pull(b);
         }
-      }, hero);
+      }, a);
 
-      if (hero.fixed) {
-        return hero;
-      }
+      let mag = Math.max(0, a.vec.getMagnitude() - COEF_FRICTION);
 
-      let mag = hero.vec.getMagnitude() - collider.config.COEF_FRICTION;
-
-      if (mag < 0) {
-        mag = 0;
-      }
-
-      hero = new Particle(
-        hero.pos,
-        hero.mass,
-        hero.vec.setMagnitude(mag),
-        hero.fixed
-      );
-      return hero.next();
+      return a.setMagnitude(mag);
     });
 
-    return new Collider(particles, collider.config);
+    //
+    // detect collisions
+    //
+
+    // just detecting and correcting, ultimately this should be more
+    // sophisticated
+    particles = particles.map((a, i) => {
+      const collision = this.particles.some(
+        (b, j) => i !== j && a.doesIntersect(b)
+      );
+
+      if (collision) {
+        // right now we just set the particle to fixed
+        // should handle this with some maths
+        return new Particle(a.pos, a.mass, new Vector(), true);
+      } else {
+        return a;
+      }
+    });
+
+    //
+    // calculate new particle positions
+    //
+    particles = particles.map(particle => particle.next());
+
+    return new Collider(particles, this.config);
   }
 }

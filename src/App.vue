@@ -16,6 +16,7 @@
     <template v-else>
       <button @click="stop">stop</button>
     </template>
+    <button @click="updateLevel">reset</button>
 
     <br />
 
@@ -67,7 +68,7 @@ export default class App extends Vue {
   }
 
   @Watch("selectedLevel")
-  async updateLevel() {
+  updateLevel() {
     const moves = getLevel(this.selectedLevel);
     this.frames = util.render(moves);
     this.next();

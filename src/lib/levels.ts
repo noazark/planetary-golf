@@ -58,3 +58,13 @@ export function harmony(config?: HarmonyConfig) {
 
   return new Collider(particles, { COEF_FRICTION: 0 });
 }
+
+interface CollisionConfig {}
+export function collision(config?: CollisionConfig) {
+  const particles: Array<Particle> = [
+    new Particle(new Point(0, 130), 30, new Vector(3, 0)),
+    new Particle(new Point(0, 170), 30, new Vector(3, 0))
+  ];
+
+  return new Collider(particles, { COEF_FRICTION: 0 });
+}
