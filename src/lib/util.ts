@@ -26,7 +26,6 @@ export function render(
       return {
         next() {
           _moves = _moves.next();
-          _moves = _moves.move();
           colliders.add(_moves);
 
           if (colliders.length >= config.maxFrames) {

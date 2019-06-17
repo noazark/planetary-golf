@@ -33,23 +33,18 @@ export default class Collider {
       return a.setMagnitude(mag);
     });
 
-    return new Collider(particles, this.config);
-  }
-
-  // move particles along their vectors
-  move() {
     // just detecting and correcting, ultimately this should be more
     // sophisticated and have collision handling somewhere else
     let collider = Collider.mapCollisions(
-      this,
+      new Collider(particles, this.config),
 
       // right now we just set the particle to fixed
       // should handle this with some maths
       (a: Particle) => new Particle(a.pos, a.mass, new Vector(), true)
     );
-    let particles = collider.particles.map((particle: Particle) =>
-      particle.next()
-    );
+
+    particles = collider.particles.map((p: Particle) => p.next());
+
     return new Collider(particles, this.config);
   }
 
