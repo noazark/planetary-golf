@@ -1,7 +1,5 @@
 import Particle from "./body";
 
-export class OrbitalError extends Error {}
-
 interface ColliderConfig {
   COEF_FRICTION: number;
 }
@@ -30,12 +28,16 @@ export default class Collider {
       let mag = hero.vec.getMagnitude() - collider.config.COEF_FRICTION;
 
       // friction can't reverse motion, only slow it down
-      if (mag < collider.config.COEF_FRICTION) {
+      if (mag < 0) {
         mag = 0;
-
-        throw new OrbitalError("Dude, you're not moving.");
       }
-      hero.vec.setMagnitude(mag);
+
+      hero = new Particle(
+        hero.pos,
+        hero.mass,
+        hero.vec.setMagnitude(mag),
+        hero.fixed
+      );
       return hero.next();
     });
 
