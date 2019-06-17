@@ -1,50 +1,25 @@
 import Collider from "./collider";
 import Particle from "./particle";
 import { CanvasObject, Arc, Path } from "./canvas";
+import { Buffer } from "./buffer";
 
 export type Frame = Array<CanvasObject>;
 
-class Buffer {
-  private _buff: Array<any>;
-  public length: number;
-  public bufferedLength: number;
-
-  constructor(public readonly maxLength: number) {
-    this._buff = [];
-    this.length = 0;
-    this.bufferedLength = 0;
-  }
-
-  last() {
-    return this._buff[this._buff.length - 1];
-  }
-
-  add(el: any): number {
-    const length = this._buff.push(el);
-
-    if (length > this.maxLength) {
-      this._buff.shift();
-    }
-
-    this.length++;
-    this.bufferedLength = this._buff.length;
-
-    return this.length;
-  }
-
-  pairs() {
-    if (this._buff.length >= 1) {
-      return this._buff.slice(1).reduce((m, el, i) => {
-        m.push([this._buff[i], el]);
-        return m;
-      }, []);
-    }
-  }
+interface RenderConfig {
+  maxFrames: number;
+  tailLength: number;
+  energyMultiplier: number;
 }
-
-export function render(moves: Collider, maxFrames: number = Infinity) {
+export function render(
+  moves: Collider,
+  config: RenderConfig = {
+    maxFrames: Infinity,
+    tailLength: 30,
+    energyMultiplier: 0.1
+  }
+) {
   let _moves = moves;
-  let colliders = new Buffer(30);
+  let colliders = new Buffer(config.tailLength);
 
   return {
     [Symbol.iterator]() {
@@ -52,6 +27,10 @@ export function render(moves: Collider, maxFrames: number = Infinity) {
         next() {
           _moves = _moves.next();
           colliders.add(_moves);
+
+          if (colliders.length >= config.maxFrames) {
+            return { value: [], done: true };
+          }
 
           if (colliders.length >= 1) {
             const particles = _moves.particles.map(
@@ -69,7 +48,7 @@ export function render(moves: Collider, maxFrames: number = Infinity) {
                 const segments = _m2.particles.map(
                   (body: Particle, i: number) => {
                     const magnitude = body.vec.getMagnitude();
-                    const mag = magnitude / 10;
+                    const mag = magnitude * config.energyMultiplier;
                     const p0 = _m0.particles[i].pos;
                     const p1 = body.pos;
 
@@ -83,10 +62,9 @@ export function render(moves: Collider, maxFrames: number = Infinity) {
               }, []);
 
             return { value: [...particles, ...paths], done: false };
+          } else {
+            return { value: [], done: false };
           }
-
-          if (colliders.length === maxFrames) return { value: [], done: true };
-          else return { value: [], done: false };
         }
       };
     }

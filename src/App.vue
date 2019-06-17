@@ -42,6 +42,11 @@ export default class App extends Vue {
   public selectedLevel: string;
   public frames: Iterable<Frame> | null = null;
   public engine: Loop;
+  private renderConfig = {
+    maxFrames: Infinity,
+    tailLength: 30,
+    energyMultiplier: 0.1
+  };
 
   constructor() {
     super();
@@ -70,7 +75,7 @@ export default class App extends Vue {
   @Watch("selectedLevel")
   updateLevel() {
     const moves = getLevel(this.selectedLevel);
-    this.frames = util.render(moves);
+    this.frames = util.render(moves, this.renderConfig);
     this.next();
   }
 
