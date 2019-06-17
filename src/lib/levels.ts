@@ -1,4 +1,4 @@
-import Particle from "./body";
+import Particle from "./particle";
 import Point from "./point";
 import Collider from "./collider";
 import Vector from "./vector";

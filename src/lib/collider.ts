@@ -1,4 +1,4 @@
-import Particle from "./body";
+import Particle from "./particle";
 
 interface ColliderConfig {
   COEF_FRICTION: number;
@@ -13,7 +13,6 @@ export default class Collider {
   static next(collider: Collider) {
     let bodies = collider.bodies.map((hero: Particle, i: number) => {
       hero = collider.bodies.reduce((hero, body, j: number) => {
-        // calculate gravitational pull and apply it to hero
         if (i == j || hero.fixed) {
           return hero;
         } else {
@@ -27,7 +26,6 @@ export default class Collider {
 
       let mag = hero.vec.getMagnitude() - collider.config.COEF_FRICTION;
 
-      // friction can't reverse motion, only slow it down
       if (mag < 0) {
         mag = 0;
       }

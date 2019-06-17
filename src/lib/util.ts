@@ -1,5 +1,5 @@
 import Collider from "./collider";
-import Particle from "./body";
+import Particle from "./particle";
 import { CanvasObject, Arc, Path } from "./canvas";
 
 export type Frame = Array<CanvasObject>;
