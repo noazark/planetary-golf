@@ -54,7 +54,7 @@ export function render(moves: Collider, maxFrames: number = Infinity) {
           colliders.add(_moves);
 
           if (colliders.length >= 1) {
-            const bodies = _moves.bodies.map((body: Particle, i: number) => {
+            const particles = _moves.particles.map((body: Particle, i: number) => {
               return new Arc({
                 c: body.pos,
                 fillStyle: "rgba(255, 255, 255, .3)"
@@ -64,10 +64,10 @@ export function render(moves: Collider, maxFrames: number = Infinity) {
             const paths = colliders
               .pairs()
               .reduce((frame: Frame, [_m0, _m2]: Array<Collider>) => {
-                const segments = _m2.bodies.map((body: Particle, i: number) => {
+                const segments = _m2.particles.map((body: Particle, i: number) => {
                   const magnitude = body.vec.getMagnitude();
                   const mag = magnitude / 10;
-                  const p0 = _m0.bodies[i].pos;
+                  const p0 = _m0.particles[i].pos;
                   const p1 = body.pos;
 
                   return new Path({
@@ -78,7 +78,7 @@ export function render(moves: Collider, maxFrames: number = Infinity) {
                 return [...frame, ...segments];
               }, []);
 
-            return { value: [...bodies, ...paths], done: false };
+            return { value: [...particles, ...paths], done: false };
           }
 
           if (colliders.length === maxFrames) return { value: [], done: true };

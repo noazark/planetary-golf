@@ -6,13 +6,13 @@ interface ColliderConfig {
 
 export default class Collider {
   constructor(
-    public readonly bodies: Array<Particle>,
+    public readonly particles: Array<Particle>,
     public readonly config: ColliderConfig
   ) {}
 
   static next(collider: Collider) {
-    let bodies = collider.bodies.map((hero: Particle, i: number) => {
-      hero = collider.bodies.reduce((hero, body, j: number) => {
+    let particles = collider.particles.map((hero: Particle, i: number) => {
+      hero = collider.particles.reduce((hero, body, j: number) => {
         if (i == j || hero.fixed) {
           return hero;
         } else {
@@ -39,6 +39,6 @@ export default class Collider {
       return hero.next();
     });
 
-    return new Collider(bodies, collider.config);
+    return new Collider(particles, collider.config);
   }
 }

@@ -10,7 +10,7 @@ interface ChaosConfig {
 export function chaos(config: ChaosConfig = { height: 300, spread: 5 }) {
   const length = config.height / config.spread;
 
-  const bodies: Array<Particle> = [
+  const particles: Array<Particle> = [
     ...Array.from(
       { length },
       (_, i) =>
@@ -23,12 +23,12 @@ export function chaos(config: ChaosConfig = { height: 300, spread: 5 }) {
     new Particle(new Point(300, 200), 100, new Vector(0, 0), true)
   ];
 
-  return new Collider(bodies, { COEF_FRICTION: 0.022 });
+  return new Collider(particles, { COEF_FRICTION: 0.022 });
 }
 
 interface AcceleratorConfig {}
 export function accelerator(config?: AcceleratorConfig) {
-  const bodies: Array<Particle> = [
+  const particles: Array<Particle> = [
     new Particle(new Point(0, 60), 0, new Vector(3, 0)),
     new Particle(new Point(0, 240), 0, new Vector(3, 0)),
 
@@ -36,25 +36,25 @@ export function accelerator(config?: AcceleratorConfig) {
     new Particle(new Point(300, 200), 500, new Vector(0, 0), true)
   ];
 
-  return new Collider(bodies, { COEF_FRICTION: 0 });
+  return new Collider(particles, { COEF_FRICTION: 0 });
 }
 
 interface LeapFrogConfig {}
 export function leapFrog(config?: LeapFrogConfig) {
-  const bodies: Array<Particle> = [
+  const particles: Array<Particle> = [
     new Particle(new Point(0, 130), 100, new Vector(1, 0)),
     new Particle(new Point(0, 170), 30, new Vector(0, 0))
   ];
 
-  return new Collider(bodies, { COEF_FRICTION: 0 });
+  return new Collider(particles, { COEF_FRICTION: 0 });
 }
 
 interface HarmonyConfig {}
 export function harmony(config?: HarmonyConfig) {
-  const bodies: Array<Particle> = [
+  const particles: Array<Particle> = [
     new Particle(new Point(200, 100), 800, new Vector(1, 0), false),
     new Particle(new Point(300, 200), 800, new Vector(-1, 0), false)
   ];
 
-  return new Collider(bodies, { COEF_FRICTION: 0 });
+  return new Collider(particles, { COEF_FRICTION: 0 });
 }
