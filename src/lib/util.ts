@@ -2,7 +2,7 @@ import Collider from "./collider";
 import Particle from "./body";
 import { CanvasObject, Arc, Path } from "./canvas";
 
-type Frame = Array<CanvasObject>;
+export type Frame = Array<CanvasObject>;
 
 class Buffer {
   private _buff: Array<any>;
@@ -89,14 +89,7 @@ export function render(moves: Collider, maxFrames: number = Infinity) {
   };
 }
 
-export async function draw(
-  ctx: CanvasRenderingContext2D,
-  frames: Iterable<Frame>
-) {
-  for (let frame of frames) {
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    frame.forEach((seg: CanvasObject) => seg.render(ctx));
-
-    await new Promise(requestAnimationFrame);
-  }
+export function draw(ctx: CanvasRenderingContext2D, frame: Frame) {
+  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  frame.forEach((seg: CanvasObject) => seg.render(ctx));
 }

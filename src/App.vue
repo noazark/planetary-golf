@@ -1,31 +1,98 @@
 <template>
   <div id="app">
+    <select
+      :value="selectedLevel"
+      @change="selectedLevel = $event.target.value"
+    >
+      <option :value="name" v-for="name in levels" :key="name">{{
+        name
+      }}</option>
+    </select>
+
+    <template v-if="!isRunning">
+      <button @click="start">start</button>
+      <button @click="next">next</button>
+    </template>
+    <template v-else>
+      <button @click="stop">stop</button>
+    </template>
+
+    <br />
+
     <canvas ref="canvas" width="500" height="300" />
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue, Watch } from "vue-property-decorator";
 import { fixCanvas } from "./lib/canvas";
 import * as levels from "./lib/levels";
 import * as util from "./lib/util";
+import Collider from "./lib/collider";
+import { Loop } from "./lib/loop";
+import { Frame } from "./lib/util";
 
-@Component({
+function getLevel(name: string) {
+  return (levels as { [index: string]: Function })[name]();
+}
+
+@Component({ name: "App" })
+export default class App extends Vue {
+  public selectedLevel: string;
+  public frames: Iterable<Frame> | null = null;
+  public engine: Loop;
+
+  constructor() {
+    super();
+
+    this.selectedLevel = Object.keys(levels)[0];
+    this.engine = new Loop(() => this.next());
+    this.engine.stop();
+  }
+
+  get levels() {
+    return Object.keys(levels);
+  }
+
+  get isRunning() {
+    return this.engine.running;
+  }
+
   mounted() {
     const canvas = this.$refs.canvas as HTMLCanvasElement;
 
     fixCanvas(canvas);
-    const ctx = canvas.getContext("2d");
 
-    let moves = levels.harmony();
+    this.updateLevel();
+  }
 
-    if (canvas && ctx) {
-      const frames = util.render(moves);
-      util.draw(ctx, frames);
+  @Watch("selectedLevel")
+  async updateLevel() {
+    const moves = getLevel(this.selectedLevel);
+    this.frames = util.render(moves);
+    this.next();
+  }
+
+  start() {
+    this.engine.start();
+  }
+
+  stop() {
+    this.engine.stop();
+  }
+
+  next() {
+    const canvas = this.$refs.canvas as HTMLCanvasElement;
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+
+      if (this.frames && ctx) {
+        const frame = this.frames[Symbol.iterator]().next().value;
+        util.draw(ctx, frame);
+      }
     }
   }
-})
-export default class App extends Vue {}
+}
 </script>
 
 <style>
