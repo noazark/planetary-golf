@@ -27,10 +27,10 @@
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
 import { fixCanvas } from "./lib/canvas";
-import * as levels from "./lib/levels";
+import * as levels from "./levels";
 import * as util from "./lib/util";
 import Collider from "./lib/collider";
-import { Loop } from "./lib/loop";
+import { Loop } from "./loop";
 import { Frame } from "./lib/util";
 
 function getLevel(name: string) {

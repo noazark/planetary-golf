@@ -1,7 +1,5 @@
-import Particle from "./particle";
-import Point from "./point";
-import Collider from "./collider";
-import Vector from "./vector";
+import { Particle, Point, Vector } from "./lib/particle";
+import Collider from "./lib/collider";
 
 interface ChaosConfig {
   height: number;

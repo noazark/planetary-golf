@@ -1,4 +1,4 @@
-import Point from "./point";
+import { Point } from "./particle";
 import { CanvasObject } from "./canvas";
 
 interface PathConfig {
@@ -28,30 +28,33 @@ export class Path implements PathConfig {
   }
 }
 
-interface ArcConfig {
-  c: Point;
-  fillStyle: string;
+interface CircleConfig {
+  c?: Point;
+  r?: number;
+  fillStyle?: string;
 }
 
-export class Arc implements ArcConfig {
+export class Circle implements CircleConfig {
   public readonly c: Point;
+  public readonly r: number;
   public readonly fillStyle: string;
 
-  constructor(config: ArcConfig) {
-    this.c = config.c;
-    this.fillStyle = config.fillStyle;
+  constructor(config: CircleConfig) {
+    this.c = config.c || new Point(0, 0);
+    this.r = config.r || 4;
+    this.fillStyle = config.fillStyle || "black";
   }
 
   render(ctx: CanvasRenderingContext2D) {
     ctx.beginPath();
-    ctx.arc(this.c.x, this.c.y, 4, 0, 2 * Math.PI);
+    ctx.arc(this.c.x, this.c.y, this.r, 0, 2 * Math.PI);
     ctx.closePath();
     ctx.fillStyle = this.fillStyle;
     ctx.fill();
   }
 }
 
-export type CanvasObject = Path | Arc;
+export type CanvasObject = Path | Circle;
 
 export function fixCanvas(canvas: HTMLCanvasElement) {
   const _width = canvas.width;

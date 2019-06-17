@@ -1,9 +1,101 @@
 import Collider from "./collider";
-import Particle from "./particle";
-import { CanvasObject, Arc, Path } from "./canvas";
-import { Buffer } from "./buffer";
+import { Particle } from "./particle";
+import { CanvasObject, Circle, Path } from "./canvas";
 
-export type Frame = Array<CanvasObject>;
+/**
+ * Returns each element in the array (or array-like) with it's adjacent pair.
+ *
+ * Example: Array pairs
+ *
+ * ```typescript
+ * pairs(['a', 'b', 'c']) // [['a', 'b'], ['b', 'c']]
+ * ```
+ *
+ * Example: Buffer pairs
+ *
+ * ```typescript
+ *
+ * const buffer = new Buffer()
+ *
+ * buffer.add(1)
+ * buffer.add(2)
+ * buffer.add(3)
+ * buffer.add(4)
+ *
+ * pairs(buffer.toArray()) // [[1, 2], [2, 3], [3, 4]]
+ * ```
+ */
+function pairs(array: Array<any>): Array<Array<any>> {
+  return array.slice(1).reduce((m: Array<any>, el: any, i: number) => {
+    m.push([array[i], el]);
+    return m;
+  }, []);
+}
+
+/**
+ * Buffer
+ *
+ * Keeps a limited number of items in memory
+ */
+export class Buffer {
+  /**
+   * Total number of elements added to buffer. Cannot be larger than the
+   * [[maxLength]].
+   */
+  public length: number;
+  /**
+   * Number of elements currently in buffer. This includes elements that may no
+   * longer be buffered.
+   */
+  public bufferedLength: number;
+  private _buff: Array<any>;
+
+  constructor(
+    /**
+     * Maximum length of the buffer.
+     */
+    public readonly maxLength: number
+  ) {
+    this.length = 0;
+    this.bufferedLength = 0;
+    this._buff = [];
+  }
+
+  /**
+   * Returns the last element in the buffer.
+   */
+  last() {
+    return this._buff[this._buff.length - 1];
+  }
+
+  /**
+   * Add an element to the buffer. In the case a buffer is full,
+   * the first element in the buffer will be evicted.
+   *
+   * @param el - Element to be added.
+   */
+  add(el: any): number {
+    const length = this._buff.push(el);
+
+    if (length > this.maxLength) {
+      this._buff.shift();
+    }
+
+    this.length++;
+    this.bufferedLength = this._buff.length;
+
+    return this.length;
+  }
+
+  /**
+   * Converts the buffer to an array.
+   */
+  toArray(): Array<any> {
+    return [...this._buff];
+  }
+}
+
+export class Frame extends Array<CanvasObject> {}
 
 interface RenderConfig {
   maxFrames: number;
@@ -35,7 +127,7 @@ export function render(
           if (colliders.length >= 1) {
             const particles = _moves.particles.map(
               (body: Particle, i: number) => {
-                return new Arc({
+                return new Circle({
                   c: body.pos,
                   fillStyle: "rgba(255, 255, 255, .3)"
                 });
@@ -51,9 +143,8 @@ export function render(
               }
             );
 
-            const paths = colliders
-              .pairs()
-              .reduce((frame: Frame, [_m0, _m2]: Array<Collider>) => {
+            const paths = pairs(colliders.toArray()).reduce(
+              (frame: Frame, [_m0, _m2]: Array<Collider>) => {
                 const segments = _m2.particles.map(
                   (body: Particle, i: number) => {
                     const magnitude = body.vec.getMagnitude();
@@ -68,7 +159,9 @@ export function render(
                   }
                 );
                 return [...frame, ...segments];
-              }, []);
+              },
+              []
+            );
 
             return { value: [...particles, ...paths, ...vectors], done: false };
           } else {

@@ -1,5 +1,4 @@
-import Particle from "./particle";
-import Vector from "./vector";
+import { Particle, Vector } from "./particle";
 
 interface ColliderConfig {
   COEF_FRICTION: number;
