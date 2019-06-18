@@ -1,4 +1,35 @@
 {
   "name": "@planitary-golf/physics",
-  "version": "0.1.0"
+  "version": "0.1.0",
+  "scripts": {
+    "docs": "typedoc",
+    "lint": "eslint --fix ./*.ts"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "1.10.2",
+    "@typescript-eslint/parser": "^1.10.2",
+    "@vue/eslint-config-prettier": "4.0.1",
+    "@vue/eslint-config-typescript": "4.0.0",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "5.0.0",
+    "eslint-config-typescript": "2.0.0",
+    "eslint-plugin-vue": "5.2.2",
+    "prettier": "1.18.2",
+    "typedoc": "^0.14.2"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended",
+      "@vue/prettier",
+      "@vue/typescript"
+    ],
+    "parserOptions": {
+      "parser": "@typescript-eslint/parser"
+    }
+  }
 }
