@@ -1,5 +1,5 @@
-import { Particle, Point, Vector } from "./lib/particle";
-import Collider from "./lib/collider";
+import { Particle, Point, Vector } from "@planitary-golf/physics/particle";
+import Collider from "@planitary-golf/physics/collider";
 
 interface ChaosConfig {
   height: number;

@@ -1,5 +1,5 @@
-import Collider from "./collider";
-import { Particle } from "./particle";
+import Collider from "@planitary-golf/physics/collider";
+import { Particle } from "@planitary-golf/physics/particle";
 import { CanvasObject, Circle, Path } from "./canvas";
 
 /**

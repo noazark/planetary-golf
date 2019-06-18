@@ -1,4 +1,4 @@
-import { Point } from "./particle";
+import { Point } from "@planitary-golf/physics/particle";
 import { CanvasObject } from "./canvas";
 
 interface PathConfig {
