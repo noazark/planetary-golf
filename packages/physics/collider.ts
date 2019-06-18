@@ -1,4 +1,5 @@
 import { Particle, Vector } from "./particle";
+import { splice } from "./util";
 
 interface ColliderConfig {
   COEF_FRICTION: number;
@@ -10,26 +11,24 @@ export default class Collider {
     public readonly config: ColliderConfig
   ) {}
 
-  // Calculate next collider
   next() {
     const { COEF_FRICTION } = this.config;
 
     let particles = this.particles.map((a: Particle, i: number) => {
+      // Return fixed particles immediately. They don't move.
       if (a.fixed) {
         return a;
       }
 
-      a = this.particles.reduce((a, b, j: number) => {
-        if (i == j || a.fixed) {
-          return a;
-        } else {
-          return a.pull(b);
-        }
-      }, a);
+      // Iterate through all particles and apply force to the current particle.
+      const other: Array<Particle> = splice(this.particles, i, 1);
+      a = other.reduce((a, b) => a.pull(b), a);
 
-      let mag = Math.max(0, a.vec.getMagnitude() - COEF_FRICTION);
+      // Calculate and apply resistance due to friction.
+      const mag = Math.max(0, a.vec.getMagnitude() - COEF_FRICTION);
+      a = a.setMagnitude(mag);
 
-      return a.setMagnitude(mag);
+      return a;
     });
 
     // just detecting and correcting, ultimately this should be more
@@ -47,11 +46,18 @@ export default class Collider {
     return new Collider(particles, this.config);
   }
 
+  /**
+   * Iterates through current collider state and calls `handler` function
+   * for each particle in a collision.
+   *
+   * @param collider Current state of particle collider, after forces are
+   *                 applied.
+   * @param handler A map function to call on each particle in collision.
+   */
   static mapCollisions(collider: Collider, handler: Function) {
     let particles = collider.particles.map((a, i) => {
-      const collisions = collider.particles.filter(
-        (b, j) => i !== j && a.doesIntersect(b)
-      );
+      const other = splice(collider.particles, i, 1);
+      const collisions = other.filter(b => a.doesIntersect(b));
 
       if (collisions.length > 0) {
         return handler(a, collisions);
