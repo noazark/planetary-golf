@@ -1,4 +1,4 @@
-import { Particle } from 'particle';
+import { Particle } from "particle";
 
 /**
  * Removes elements from an array and, if necessary, inserts new elements in

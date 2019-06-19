@@ -14,21 +14,33 @@ export class Point {
   ) {}
 
   /**
+   * Returns a vector to another point.
+   *
+   * ```typescript
+   * const a = new Point(3, 4)
+   * const b = new Point(7, 9)
+   *
+   * a.getVector(b) // Vector(x: 4, y: 5)
+   * ```
+   */
+  getVector(b: Point) {
+    return new Vector(b.x - this.x, b.y - this.y);
+  }
+
+  /**
    * Returns the angle, in radians, to another point.
    *
    * ```typescript
    * const a = new Point(0, 0)
    * const b = new Point(1, 1)
    *
-   * a.getAngle(b) // π * 0.5
+   * a.getAngle(b) // π * 0.25
    * ```
    *
    * @returns Angle (in radians)
    */
   getAngle(b: Point) {
-    const delta_x = b.x - this.x;
-    const delta_y = b.y - this.y;
-    return Math.atan2(delta_y, delta_x);
+    return this.getVector(b).getDirection();
   }
 
   /**
@@ -42,9 +54,7 @@ export class Point {
    * ```
    */
   getDistance(b: Point) {
-    const delta_x = Math.pow(b.x - this.x, 2);
-    const delta_y = Math.pow(b.y - this.y, 2);
-    return Math.sqrt(delta_x + delta_y);
+    return this.getVector(b).getMagnitude();
   }
 
   /**
@@ -58,6 +68,10 @@ export class Point {
     const _x = this.x + vec.x;
     const _y = this.y + vec.y;
     return new Point(_x, _y);
+  }
+
+  toObject() {
+    return { x: this.x, y: this.y };
   }
 }
 
@@ -160,11 +174,11 @@ export class Vector {
    * ```typescript
    * const vec = new Vector(3, 4)
    *
-   * vec.toString() // "x: 3, y: 4"
+   * vec.toString() // "Vector(x: 3, y: 4)"
    * ```
    */
   toString(): string {
-    return "x: " + this.x + ", y: " + this.y;
+    return "Vector(x: " + this.x + ", y: " + this.y + ")";
   }
 
   /**
@@ -202,15 +216,15 @@ export class Particle {
     /**
      * Position of the particle in space.
      */
-    public readonly pos: Point,
+    public readonly pos: Point = new Point(0, 0),
     /**
      * Mass of the particle.
      */
-    public readonly mass: number,
+    public readonly mass: number = 0,
     /**
      * Force vector of the particle.
      */
-    public readonly vec: Vector,
+    public readonly vec: Vector = new Vector(0, 0),
     /**
      * A boolean of whether the particle is fixed in space.
      */
@@ -283,8 +297,16 @@ export class Particle {
     const r = p + body.vec.x;
     const s = q + body.vec.y;
 
+    if (
+      (this.pos.x === body.pos.x && this.pos.y === body.pos.y) ||
+      (c === r && d === s)
+    ) {
+      return true;
+    }
+
     const det = (c - a) * (s - q) - (r - p) * (d - b);
     if (det === 0) {
+      // lines are parallel, no intersection
       return false;
     } else {
       const lambda = ((s - q) * (r - a) + (p - r) * (s - b)) / det;
@@ -307,7 +329,7 @@ export class Particle {
     // apply mass, diminishes over greater distance
     const magnitude = (body.mass * 1) / Math.pow(distance, 2);
     // supporting both attractors and deflectors
-    const direction = theta - (body.fixed ? 2 * Math.PI : 0);
+    const direction = theta - (body.mass < 0 ? 2 * Math.PI : 0);
 
     const vec = Vector.fromEuclidean(magnitude, direction);
 
