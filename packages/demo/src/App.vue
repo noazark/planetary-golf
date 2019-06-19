@@ -19,12 +19,20 @@
     <button @click="updateLevel">reset</button>
     <br />
     <label>
-      <input type="checkbox" v-model="renderConfig.showParticle" />
+      <input
+        type="checkbox"
+        v-model="renderConfig.showParticle"
+        @change="renderFrame"
+      />
       particle
     </label>
     <br />
     <label>
-      <input type="checkbox" v-model="renderConfig.showVector" />
+      <input
+        type="checkbox"
+        v-model="renderConfig.showVector"
+        @change="renderFrame"
+      />
       vector
     </label>
     <br />
@@ -40,6 +48,7 @@
         step="0.0001"
         max="0.05"
         v-model="colliderConfig.COEF_FRICTION"
+        @input="renderFrame"
       />
       friction: {{ colliderConfig.COEF_FRICTION }}
     </label>
@@ -51,6 +60,7 @@
         step="0.001"
         max="0.5"
         v-model="renderConfig.energyMultiplier"
+        @input="renderFrame"
       />
       energy: {{ renderConfig.energyMultiplier }}
     </label>
@@ -87,9 +97,10 @@ function getLevel(name: string, ...args: any) {
 
 @Component({ name: "App" })
 export default class App extends Vue {
+  private _ctx: CanvasRenderingContext2D | null = null;
   public selectedLevel: string;
-  public frames: Iterable<Frame> | null = null;
-  public engine: Loop;
+  private _frames: util.Renderer | null = null;
+  private engine: Loop;
   public renderConfig: util.RenderConfig = {
     maxFrames: Infinity,
     tailLength: 30,
@@ -126,6 +137,7 @@ export default class App extends Vue {
     const canvas = this.$refs.canvas;
 
     fixCanvas(canvas);
+    this._ctx = canvas.getContext("2d");
 
     this.updateLevel();
   }
@@ -133,8 +145,8 @@ export default class App extends Vue {
   @Watch("selectedLevel")
   updateLevel() {
     const moves = getLevel(this.selectedLevel, undefined, this.colliderConfig);
-    this.frames = util.render(moves, this.renderConfig);
-    this.step();
+    this._frames = new util.Renderer(moves, this.renderConfig);
+    this.renderFrame();
   }
 
   start() {
@@ -145,19 +157,20 @@ export default class App extends Vue {
     this.engine.stop();
   }
 
-  step() {
-    const canvas = this.$refs.canvas;
-    if (canvas) {
-      const ctx = canvas.getContext("2d");
+  renderFrame() {
+    if (this._ctx && this._frames) {
+      util.draw(this._ctx, this._frames.render());
+    }
+  }
 
-      if (this.frames && ctx) {
-        const step = this.frames[Symbol.iterator]().next();
-        if (!step.done) {
-          const frame = step.value;
-          util.draw(ctx, frame);
-        } else {
-          this.engine.stop();
-        }
+  step() {
+    if (this._frames) {
+      const step = this._frames[Symbol.iterator]().next();
+      if (!step.done) {
+        const frame = step.value;
+        this.renderFrame();
+      } else {
+        this.engine.stop();
       }
     }
   }

@@ -104,92 +104,83 @@ export interface RenderConfig {
   showVector: boolean;
   showParticle: boolean;
 }
-export function render(
-  moves: Collider,
-  config: RenderConfig = {
-    maxFrames: Infinity,
-    tailLength: 30,
-    energyMultiplier: 0.04,
-    showVector: false,
-    showParticle: false
+export class Renderer {
+  private colliders: Buffer;
+
+  constructor(public moves: Collider, public config: RenderConfig) {
+    this.colliders = new Buffer(config.tailLength);
   }
-) {
-  let _moves = moves;
-  let colliders = new Buffer(config.tailLength);
 
-  return {
-    [Symbol.iterator]() {
-      return {
-        next() {
-          _moves = _moves.next();
-          colliders.add(_moves);
+  render() {
+    let objects: Array<CanvasObject> = [];
 
-          if (colliders.length >= config.maxFrames) {
-            return { value: [], done: true };
-          }
-
-          if (colliders.length >= 1) {
-            let objects: Array<CanvasObject> = [];
-
-            if (config.showParticle) {
-              objects = [
-                ...objects,
-                ..._moves.particles.map((body: Particle, i: number) => {
-                  return new Circle({
-                    c: body.pos,
-                    r: Math.max(1, Math.abs(body.mass / 4)),
-                    fillStyle: "rgba(255, 255, 255, .3)"
-                  });
-                })
-              ];
-            }
-
-            objects = [
-              ...objects,
-              ...pairs(colliders.toArray()).reduce(
-                (frame: Frame, [_m0, _m2]: Array<Collider>) => {
-                  const segments = _m2.particles.map(
-                    (body: Particle, i: number) => {
-                      const magnitude = body.vec.getMagnitude();
-                      const mag = Math.min(
-                        magnitude * config.energyMultiplier,
-                        1
-                      );
-                      const p0 = _m0.particles[i].pos;
-                      const p1 = body.pos;
-
-                      return new Path({
-                        line: [p0, p1],
-                        strokeStyle: `hsl(${360 - mag * 360}, 100%, 50%)`
-                      });
-                    }
-                  );
-                  return [...frame, ...segments];
-                },
-                []
-              )
-            ];
-
-            if (config.showVector) {
-              objects = [
-                ...objects,
-                ..._moves.particles.map((body: Particle, i: number) => {
-                  return new Path({
-                    line: [body.pos, body.pos.translate(body.vec.multiply(10))],
-                    strokeStyle: "rgba(255, 255, 255, 1)"
-                  });
-                })
-              ];
-            }
-
-            return { value: objects, done: false };
-          } else {
-            return { value: [], done: false };
-          }
-        }
-      };
+    if (this.config.showParticle) {
+      objects = [
+        ...objects,
+        ...this.moves.particles.map((body: Particle, i: number) => {
+          return new Circle({
+            c: body.pos,
+            r: Math.max(1, Math.abs(body.mass / 4)),
+            fillStyle: "rgba(255, 255, 255, .3)"
+          });
+        })
+      ];
     }
-  };
+
+    objects = [
+      ...objects,
+      ...pairs(this.colliders.toArray()).reduce(
+        (frame: Frame, [_m0, _m2]: Array<Collider>) => {
+          const segments = _m2.particles.map((body: Particle, i: number) => {
+            const magnitude = body.vec.getMagnitude();
+            const mag = Math.min(magnitude * this.config.energyMultiplier, 1);
+            const p0 = _m0.particles[i].pos;
+            const p1 = body.pos;
+
+            return new Path({
+              line: [p0, p1],
+              strokeStyle: `hsl(${360 - mag * 360}, 100%, 50%)`
+            });
+          });
+          return [...frame, ...segments];
+        },
+        []
+      )
+    ];
+
+    if (this.config.showVector) {
+      objects = [
+        ...objects,
+        ...this.moves.particles.map((body: Particle, i: number) => {
+          return new Path({
+            line: [body.pos, body.pos.translate(body.vec.multiply(10))],
+            strokeStyle: "rgba(255, 255, 255, 1)"
+          });
+        })
+      ];
+    }
+
+    return objects;
+  }
+
+  [Symbol.iterator]() {
+    return {
+      next: () => {
+        this.moves = this.moves.next();
+        this.colliders.add(this.moves);
+
+        if (this.colliders.length >= this.config.maxFrames) {
+          return { value: [], done: true };
+        }
+
+        if (this.colliders.length >= 1) {
+          return { value: this, done: false };
+        } else {
+          return { value: [], done: false };
+        }
+      }
+    };
+  }
 }
 
 export function draw(ctx: CanvasRenderingContext2D, frame: Frame) {
