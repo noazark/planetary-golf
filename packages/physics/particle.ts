@@ -315,6 +315,20 @@ export class Particle {
     }
   }
 
+  getForceMagnitude(body: Particle) {
+    const distance = this.getDistance(body);
+
+    // apply mass, diminishes over greater distance
+    return body.mass / Math.pow(distance, 2);
+  }
+
+  getForceDirection(body: Particle) {
+    const theta = this.getAngle(body);
+
+    // supporting both attractors and deflectors
+    return theta - (body.mass < 0 ? 2 * Math.PI : 0);
+  }
+
   /**
    * Calculates the force to be applied through the attraction of another
    * foreign body. Returns a new copy of this particle, with the new force
@@ -323,13 +337,8 @@ export class Particle {
    * @param body - The foreign body (attractor) doing the pulling.
    */
   pull(body: Particle) {
-    const theta = this.getAngle(body);
-    const distance = this.getDistance(body);
-
-    // apply mass, diminishes over greater distance
-    const magnitude = (body.mass * 1) / Math.pow(distance, 2);
-    // supporting both attractors and deflectors
-    const direction = theta - (body.mass < 0 ? 2 * Math.PI : 0);
+    const magnitude = this.getForceMagnitude(body);
+    const direction = this.getForceDirection(body);
 
     const vec = Vector.fromEuclidean(magnitude, direction);
 

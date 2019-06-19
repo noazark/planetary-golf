@@ -137,6 +137,7 @@ export function render(
                 ..._moves.particles.map((body: Particle, i: number) => {
                   return new Circle({
                     c: body.pos,
+                    r: Math.max(1, Math.abs(body.mass / 4)),
                     fillStyle: "rgba(255, 255, 255, .3)"
                   });
                 })
@@ -150,7 +151,10 @@ export function render(
                   const segments = _m2.particles.map(
                     (body: Particle, i: number) => {
                       const magnitude = body.vec.getMagnitude();
-                      const mag = magnitude * config.energyMultiplier;
+                      const mag = Math.min(
+                        magnitude * config.energyMultiplier,
+                        1
+                      );
                       const p0 = _m0.particles[i].pos;
                       const p1 = body.pos;
 

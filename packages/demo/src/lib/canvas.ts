@@ -41,7 +41,7 @@ export class Circle implements CircleConfig {
 
   constructor(config: CircleConfig) {
     this.c = config.c || new Point(0, 0);
-    this.r = config.r || 4;
+    this.r = config.r || 0;
     this.fillStyle = config.fillStyle || "black";
   }
 

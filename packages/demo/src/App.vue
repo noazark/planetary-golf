@@ -19,16 +19,29 @@
     <button @click="updateLevel">reset</button>
     <br />
     <label>
+      <input type="checkbox" v-model="renderConfig.showParticle" />
+      particle
+    </label>
+    <br />
+    <label>
       <input type="checkbox" v-model="renderConfig.showVector" />
       vector
     </label>
     <br />
     <label>
-      <input
-        type="checkbox"
-        v-model="colliderConfig.enableCollisions"
-      />
+      <input type="checkbox" v-model="colliderConfig.enableCollisions" />
       collisions
+    </label>
+    <br />
+    <label>
+      <input
+        type="range"
+        min="0"
+        step="0.0001"
+        max="0.05"
+        v-model="colliderConfig.COEF_FRICTION"
+      />
+      friction: {{ colliderConfig.COEF_FRICTION }}
     </label>
     <br />
     <label>
@@ -38,20 +51,19 @@
         step="0.001"
         max="0.5"
         v-model="renderConfig.energyMultiplier"
-        @change="updateLevel"
       />
-      energy
+      energy: {{ renderConfig.energyMultiplier }}
     </label>
     <br />
     <label>
       <input
         type="range"
-        min="0"
+        min="2"
         max="100"
         v-model="renderConfig.tailLength"
         @change="updateLevel"
       />
-      tail length
+      tail length: {{ renderConfig.tailLength }}
     </label>
 
     <br />
@@ -69,7 +81,7 @@ import Collider, { ColliderConfig } from "@planitary-golf/physics/collider";
 import { Loop } from "./lib/loop";
 import { Frame } from "./lib/util";
 
-function getLevel(name: string, ...args) {
+function getLevel(name: string, ...args: any) {
   return (levels as { [index: string]: Function })[name](...args);
 }
 
@@ -82,8 +94,8 @@ export default class App extends Vue {
     maxFrames: Infinity,
     tailLength: 30,
     energyMultiplier: 0.2,
-    showVector: false,
-    showParticle: false
+    showVector: true,
+    showParticle: true
   };
   public colliderConfig: ColliderConfig = {
     COEF_FRICTION: 0,

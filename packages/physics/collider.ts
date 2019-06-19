@@ -44,10 +44,10 @@ export default class Collider {
 
         // right now we just set the particle to fixed
         // should handle this with some maths
-        (a: Particle) => new Particle(a.pos, a.mass, new Vector(), true)
+        (a: Particle) => new Particle(a.pos, 0, new Vector(), true)
       );
 
-      particles = collider.particles
+      particles = collider.particles;
     }
 
     particles = particles.map((p: Particle) => p.next());
