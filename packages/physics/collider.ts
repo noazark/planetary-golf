@@ -1,19 +1,24 @@
 import { Particle, Vector } from "./particle";
 import { splice } from "./util";
 
-interface ColliderConfig {
+export interface ColliderConfig {
+  /**
+   * Coefficient of friction.
+   */
   COEF_FRICTION: number;
+  enableCollisions: boolean;
 }
 
 export default class Collider {
   constructor(
     public readonly particles: Array<Particle>,
-    public readonly config: ColliderConfig
+    public readonly config: ColliderConfig = {
+      COEF_FRICTION: 0,
+      enableCollisions: true
+    }
   ) {}
 
   next() {
-    const { COEF_FRICTION } = this.config;
-
     let particles = this.particles.map((a: Particle, i: number) => {
       // Return fixed particles immediately. They don't move.
       if (a.fixed) {
@@ -25,23 +30,27 @@ export default class Collider {
       a = other.reduce((a, b) => a.pull(b), a);
 
       // Calculate and apply resistance due to friction.
-      const mag = Math.max(0, a.vec.getMagnitude() - COEF_FRICTION);
+      const mag = Math.max(0, a.vec.getMagnitude() - this.config.COEF_FRICTION);
       a = a.setMagnitude(mag);
 
       return a;
     });
 
-    // just detecting and correcting, ultimately this should be more
-    // sophisticated and have collision handling somewhere else
-    let collider = Collider.mapCollisions(
-      new Collider(particles, this.config),
+    if (this.config.enableCollisions) {
+      // just detecting and correcting, ultimately this should be more
+      // sophisticated and have collision handling somewhere else
+      let collider = Collider.mapCollisions(
+        new Collider(particles, this.config),
 
-      // right now we just set the particle to fixed
-      // should handle this with some maths
-      (a: Particle) => new Particle(a.pos, a.mass, new Vector(), true)
-    );
+        // right now we just set the particle to fixed
+        // should handle this with some maths
+        (a: Particle) => new Particle(a.pos, a.mass, new Vector(), true)
+      );
 
-    particles = collider.particles.map((p: Particle) => p.next());
+      particles = collider.particles
+    }
+
+    particles = particles.map((p: Particle) => p.next());
 
     return new Collider(particles, this.config);
   }

@@ -97,17 +97,21 @@ export class Buffer {
 
 export class Frame extends Array<CanvasObject> {}
 
-interface RenderConfig {
+export interface RenderConfig {
   maxFrames: number;
   tailLength: number;
   energyMultiplier: number;
+  showVector: boolean;
+  showParticle: boolean;
 }
 export function render(
   moves: Collider,
   config: RenderConfig = {
     maxFrames: Infinity,
     tailLength: 30,
-    energyMultiplier: 0.1
+    energyMultiplier: 0.04,
+    showVector: false,
+    showParticle: false
   }
 ) {
   let _moves = moves;
@@ -125,45 +129,56 @@ export function render(
           }
 
           if (colliders.length >= 1) {
-            const particles = _moves.particles.map(
-              (body: Particle, i: number) => {
-                return new Circle({
-                  c: body.pos,
-                  fillStyle: "rgba(255, 255, 255, .3)"
-                });
-              }
-            );
+            let objects: Array<CanvasObject> = [];
 
-            const vectors = _moves.particles.map(
-              (body: Particle, i: number) => {
-                return new Path({
-                  line: [body.pos, body.pos.translate(body.vec.multiply(10))],
-                  strokeStyle: "rgba(0, 255, 0, 1)"
-                });
-              }
-            );
+            if (config.showParticle) {
+              objects = [
+                ...objects,
+                ..._moves.particles.map((body: Particle, i: number) => {
+                  return new Circle({
+                    c: body.pos,
+                    fillStyle: "rgba(255, 255, 255, .3)"
+                  });
+                })
+              ];
+            }
 
-            const paths = pairs(colliders.toArray()).reduce(
-              (frame: Frame, [_m0, _m2]: Array<Collider>) => {
-                const segments = _m2.particles.map(
-                  (body: Particle, i: number) => {
-                    const magnitude = body.vec.getMagnitude();
-                    const mag = magnitude * config.energyMultiplier;
-                    const p0 = _m0.particles[i].pos;
-                    const p1 = body.pos;
+            objects = [
+              ...objects,
+              ...pairs(colliders.toArray()).reduce(
+                (frame: Frame, [_m0, _m2]: Array<Collider>) => {
+                  const segments = _m2.particles.map(
+                    (body: Particle, i: number) => {
+                      const magnitude = body.vec.getMagnitude();
+                      const mag = magnitude * config.energyMultiplier;
+                      const p0 = _m0.particles[i].pos;
+                      const p1 = body.pos;
 
-                    return new Path({
-                      line: [p0, p1],
-                      strokeStyle: `rgba(255, ${mag * 255}, 0, ${mag})`
-                    });
-                  }
-                );
-                return [...frame, ...segments];
-              },
-              []
-            );
+                      return new Path({
+                        line: [p0, p1],
+                        strokeStyle: `hsl(${360 - mag * 360}, 100%, 50%)`
+                      });
+                    }
+                  );
+                  return [...frame, ...segments];
+                },
+                []
+              )
+            ];
 
-            return { value: [...particles, ...paths, ...vectors], done: false };
+            if (config.showVector) {
+              objects = [
+                ...objects,
+                ..._moves.particles.map((body: Particle, i: number) => {
+                  return new Path({
+                    line: [body.pos, body.pos.translate(body.vec.multiply(10))],
+                    strokeStyle: "rgba(255, 255, 255, 1)"
+                  });
+                })
+              ];
+            }
+
+            return { value: objects, done: false };
           } else {
             return { value: [], done: false };
           }
