@@ -133,6 +133,10 @@ export default class App extends Vue {
     return this.engine.running;
   }
 
+  destroyed() {
+    this.engine.stop();
+  }
+
   mounted() {
     const canvas = this.$refs.canvas;
 
