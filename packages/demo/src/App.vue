@@ -169,7 +169,7 @@ export default class App extends Vue {
 
   step() {
     if (this._frames) {
-      const step = this._frames[Symbol.iterator]().next();
+      const step = this._frames[Symbol.iterator]().next(1);
       if (!step.done) {
         const frame = step.value;
         this.renderFrame();

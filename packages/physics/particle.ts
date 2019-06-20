@@ -256,9 +256,9 @@ export class Particle {
    * Returns a new particle who's position has been translated by the current
    * force vector.
    */
-  next() {
+  next(dt: number) {
     return new Particle(
-      this.pos.translate(this.vec),
+      this.pos.translate(this.vec.multiply(dt)),
       this.mass,
       this.vec,
       this.fixed
@@ -315,11 +315,22 @@ export class Particle {
     }
   }
 
+  /**
+   * Fake gravitational pull engine.
+   *
+   * This isn't the real world folks. Particles can still be attracted w/ zero
+   * mass. Time is irrelevant in the matrix.
+   *
+   * > F = G * m1 * m2 / d^2
+   *
+   * @param body
+   */
   getForceMagnitude(body: Particle) {
+    const m2 = body.mass;
     const distance = this.getDistance(body);
+    const force = m2 / distance ** 2;
 
-    // apply mass, diminishes over greater distance
-    return body.mass / Math.pow(distance, 2);
+    return force;
   }
 
   getForceDirection(body: Particle) {
@@ -336,12 +347,12 @@ export class Particle {
    *
    * @param body - The foreign body (attractor) doing the pulling.
    */
-  pull(body: Particle) {
+  pull(body: Particle, dt: number) {
     const magnitude = this.getForceMagnitude(body);
     const direction = this.getForceDirection(body);
 
     const vec = Vector.fromEuclidean(magnitude, direction);
 
-    return this.add(vec);
+    return this.add(vec.multiply(dt));
   }
 }

@@ -18,7 +18,7 @@ export default class Collider {
     }
   ) {}
 
-  next() {
+  next(dt: number = 1) {
     let particles = this.particles.map((a: Particle, i: number) => {
       // Return fixed particles immediately. They don't move.
       if (a.fixed) {
@@ -27,7 +27,7 @@ export default class Collider {
 
       // Iterate through all particles and apply force to the current particle.
       const other: Array<Particle> = splice(this.particles, i, 1);
-      a = other.reduce((a, b) => a.pull(b), a);
+      a = other.reduce((a, b) => a.pull(b, dt), a);
 
       // Calculate and apply resistance due to friction.
       const mag = Math.max(0, a.vec.getMagnitude() - this.config.COEF_FRICTION);
@@ -50,7 +50,7 @@ export default class Collider {
       particles = collider.particles;
     }
 
-    particles = particles.map((p: Particle) => p.next());
+    particles = particles.map((p: Particle) => p.next(dt));
 
     return new Collider(particles, this.config);
   }

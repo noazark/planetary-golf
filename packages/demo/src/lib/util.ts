@@ -165,8 +165,8 @@ export class Renderer {
 
   [Symbol.iterator]() {
     return {
-      next: () => {
-        this.moves = this.moves.next();
+      next: (dt: number) => {
+        this.moves = this.moves.next(dt);
         this.colliders.add(this.moves);
 
         if (this.colliders.length >= this.config.maxFrames) {

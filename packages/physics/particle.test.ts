@@ -1,4 +1,5 @@
 import { Point, Vector, Particle } from "./particle";
+import Collider from "./collider";
 
 describe("Point", () => {
   test("#getAngle @ 45º", () => {
@@ -211,8 +212,16 @@ describe("Particle", () => {
   test("#next", () => {
     const a = new Particle(new Point(0, 0), 0, new Vector(5, 0));
 
-    expect(a.next()).toEqual(
+    expect(a.next(1)).toEqual(
       new Particle(new Point(5, 0), 0, new Vector(5, 0))
+    );
+  });
+
+  test("#next subframe", () => {
+    const a = new Particle(new Point(0, 0), 0, new Vector(5, 0));
+
+    expect(a.next(0.1)).toEqual(
+      new Particle(new Point(0.5, 0), 0, new Vector(5, 0))
     );
   });
 
@@ -234,15 +243,24 @@ describe("Particle", () => {
     const a = new Particle();
     const b = new Particle(new Point(10, 0), 50);
 
-    expect(a.pull(b)).toEqual(
+    expect(a.pull(b, 1)).toEqual(
       new Particle(new Point(0, 0), 0, new Vector(0.5, 0))
+    );
+  });
+
+  test("#pull subframe", () => {
+    const a = new Particle();
+    const b = new Particle(new Point(10, 0), 50);
+
+    expect(a.pull(b, 0.1)).toEqual(
+      new Particle(new Point(0, 0), 0, new Vector(0.05, 0))
     );
   });
 
   test("#pull deflecting body", () => {
     const a = new Particle();
     const b = new Particle(new Point(10, 0), -50);
-    const c = a.pull(b);
+    const c = a.pull(b, 1);
 
     expect(c.vec.x).toBeCloseTo(-0.5, 14);
     expect(c.vec.y).toBeCloseTo(0, 14);
