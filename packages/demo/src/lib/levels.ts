@@ -1,6 +1,24 @@
 import { Particle, Point, Vector } from "@planitary-golf/physics/particle";
 import Collider, { ColliderConfig } from "@planitary-golf/physics/collider";
 
+interface EighttConfig {
+}
+export function eight(
+  config: EighttConfig = {},
+  colliderConfig: ColliderConfig = {
+    COEF_FRICTION: 0,
+    enableCollisions: true
+  }
+) {
+  const particles: Array<Particle> = [
+    new Particle(new Point(250, 150), 0, new Vector(1, 1)),
+    new Particle(new Point(200, 150), 100, new Vector(0, 0), true),
+    new Particle(new Point(300, 150), 100, new Vector(0, 0), true)
+  ];
+
+  return new Collider(particles, colliderConfig);
+}
+
 interface ChaosConfig {
   height: number;
   spread: number;
